@@ -1,101 +1,305 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
-
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
-
-@layer base {
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-poppins;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-playfair;
+  }
+}
+
+@layer components {
+  .container {
+    @apply w-full max-w-7xl mx-auto px-4 md:px-6;
+  }
+  
+  /* Header Styles */
+  .site-header {
+    @apply bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50;
+  }
+  
+  .header-container {
+    @apply flex justify-between items-center;
+  }
+  
+  .logo {
+    @apply text-3xl font-bold text-primary tracking-tight m-0;
+  }
+  
+  .nav-links {
+    @apply flex items-center space-x-1 md:space-x-6;
+  }
+  
+  .nav-links li {
+    @apply list-none;
+  }
+  
+  .nav-links a {
+    @apply text-gray-700 hover:text-primary transition duration-200 text-sm md:text-base px-2 py-2 rounded-md;
+  }
+  
+  .nav-links a.active {
+    @apply text-primary font-medium;
+  }
+  
+  .btn-login {
+    @apply border border-primary text-primary hover:bg-primary hover:text-white transition duration-300 px-4 py-2 rounded-md;
+  }
+  
+  .btn-signup {
+    @apply bg-primary text-white hover:bg-primary/90 transition duration-300 px-4 py-2 rounded-md;
+  }
+
+  /* Hero Section */
+  .hero {
+    @apply bg-gradient-to-r from-amber-50 to-orange-50 pt-32 pb-20 md:pt-40 md:pb-28;
+    background-image: url("https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80");
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+  
+  .hero::before {
+    content: "";
+    @apply absolute inset-0 bg-black/40;
+  }
+
+  .hero-content {
+    @apply relative z-10 text-center max-w-3xl mx-auto;
+  }
+  
+  .hero h2 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4;
+  }
+  
+  .hero p {
+    @apply text-lg md:text-xl text-white/90 mb-8;
+  }
+  
+  .btn-primary {
+    @apply inline-block bg-primary hover:bg-primary/90 text-white font-medium px-6 py-3 rounded-md transition duration-300 transform hover:scale-105;
+  }
+
+  /* Book Section */
+  .book-section {
+    @apply py-16 bg-gray-50;
+  }
+  
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold text-center mb-12 relative;
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .section-title::after {
+    content: "";
+    @apply absolute bottom-0 left-1/2 transform -translate-x-1/2 h-1 bg-primary rounded-full;
+    width: 80px;
+    bottom: -10px;
+  }
+
+  .book-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8;
+  }
+
+  .book-card {
+    @apply bg-white rounded-lg overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1;
+  }
+
+  .book-image {
+    @apply h-64 w-full object-cover;
+  }
+
+  .book-info {
+    @apply p-5;
+  }
+
+  .book-title {
+    @apply text-xl font-bold mb-2 line-clamp-1;
+  }
+
+  .book-author {
+    @apply text-gray-600 mb-3;
+  }
+
+  .book-price {
+    @apply text-primary font-bold text-lg mb-3;
+  }
+
+  .book-rating {
+    @apply flex items-center mb-4;
+  }
+
+  .rating-star {
+    @apply text-yellow-400 mr-1;
+  }
+
+  .book-actions {
+    @apply flex justify-between items-center;
+  }
+
+  .add-to-cart {
+    @apply bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors;
+  }
+
+  .add-to-wishlist {
+    @apply text-gray-500 hover:text-red-500 transition-colors;
+  }
+
+  /* Footer Styles */
+  .site-footer {
+    @apply bg-gray-800 text-white pt-12 pb-6;
+  }
+  
+  .footer-content {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-8;
+  }
+  
+  .footer-section h3 {
+    @apply text-xl font-semibold mb-4 pb-2 border-b border-gray-700 inline-block;
+  }
+  
+  .footer-section p {
+    @apply text-gray-300 mb-4;
+  }
+  
+  .footer-section ul {
+    @apply list-none p-0;
+  }
+  
+  .footer-section ul li {
+    @apply mb-2;
+  }
+  
+  .footer-section ul li a {
+    @apply text-gray-300 hover:text-primary transition duration-200;
+  }
+  
+  .footer-bottom {
+    @apply mt-8 pt-6 border-t border-gray-700 text-center text-gray-400;
+  }
+
+  /* Notification Styles */
+  .notification-container {
+    @apply relative;
+  }
+  
+  .notification-btn {
+    @apply bg-transparent border-none cursor-pointer relative p-1;
+  }
+  
+  .notification-icon {
+    @apply text-2xl;
+  }
+  
+  .notification-badge {
+    @apply absolute top-0 right-0 bg-red-500 text-white rounded-full px-1.5 py-0.5 text-xs font-bold;
+    min-width: 1rem;
+  }
+  
+  .notification-dropdown {
+    @apply absolute top-full right-0 w-80 bg-white rounded-lg shadow-lg z-50 hidden overflow-hidden;
+    transform: translateY(0.5rem);
+  }
+  
+  .notification-header {
+    @apply flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50;
+  }
+  
+  .notification-header h3 {
+    @apply m-0 text-base font-semibold text-gray-800;
+  }
+  
+  .mark-all-read {
+    @apply bg-transparent border-none text-blue-500 cursor-pointer text-sm font-medium py-1 px-3 rounded transition-colors;
+  }
+  
+  .mark-all-read:hover {
+    @apply bg-blue-50;
+  }
+  
+  .notification-list {
+    @apply max-h-80 overflow-y-auto bg-white;
+  }
+  
+  .notification-item {
+    @apply p-4 border-b border-gray-100 transition-colors;
+  }
+  
+  .notification-item:hover {
+    @apply bg-gray-50;
+  }
+  
+  .notification-item.unread {
+    @apply bg-blue-50 border-l-4 border-l-blue-500;
+  }
+  
+  .notification-content {
+    @apply flex flex-col;
+  }
+  
+  .notification-text {
+    @apply m-0 mb-2 text-sm leading-normal text-gray-800;
+  }
+  
+  .notification-time {
+    @apply text-xs text-gray-500 font-medium;
+  }
+  
+  .notification-footer {
+    @apply py-3 px-4 text-center border-t border-gray-100 bg-gray-50;
+  }
+  
+  .view-all {
+    @apply text-blue-500 no-underline text-sm font-medium py-1 px-3 rounded transition-colors;
+  }
+  
+  .view-all:hover {
+    @apply underline bg-blue-50;
+  }
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
 }

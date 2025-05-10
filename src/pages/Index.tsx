@@ -1,13 +1,282 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState, useEffect } from 'react';
+
+// Book data type
+interface Book {
+  id: number;
+  title: string;
+  author: string;
+  price: number;
+  imageUrl: string;
+  rating: number;
+}
+
+// Sample books data
+const booksData: Book[] = [
+  {
+    id: 1,
+    title: "The Midnight Library",
+    author: "Matt Haig",
+    price: 14.99,
+    imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80",
+    rating: 4.5
+  },
+  {
+    id: 2,
+    title: "Educated",
+    author: "Tara Westover",
+    price: 12.99,
+    imageUrl: "https://images.unsplash.com/photo-1495640452828-3df6795cf69b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80",
+    rating: 4.8
+  },
+  {
+    id: 3,
+    title: "The Silent Patient",
+    author: "Alex Michaelides",
+    price: 13.49,
+    imageUrl: "https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1076&q=80",
+    rating: 4.3
+  },
+  {
+    id: 4,
+    title: "Atomic Habits",
+    author: "James Clear",
+    price: 11.99,
+    imageUrl: "https://images.unsplash.com/photo-1598618253208-d75408cee680?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
+    rating: 4.7
+  },
+  {
+    id: 5,
+    title: "Where the Crawdads Sing",
+    author: "Delia Owens",
+    price: 15.99,
+    imageUrl: "https://images.unsplash.com/photo-1531901599143-df8149257c99?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1981&q=80",
+    rating: 4.6
+  },
+  {
+    id: 6,
+    title: "Becoming",
+    author: "Michelle Obama",
+    price: 18.99,
+    imageUrl: "https://images.unsplash.com/photo-1537495329792-41ae41ad3bf0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=683&q=80",
+    rating: 4.9
+  },
+  {
+    id: 7,
+    title: "The Alchemist",
+    author: "Paulo Coelho",
+    price: 9.99,
+    imageUrl: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=688&q=80",
+    rating: 4.8
+  },
+  {
+    id: 8,
+    title: "Harry Potter and the Sorcerer's Stone",
+    author: "J.K. Rowling",
+    price: 10.99,
+    imageUrl: "https://images.unsplash.com/photo-1474932430478-367dbb6752c2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
+    rating: 4.9
+  }
+];
 
 const Index = () => {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(3);
+  const [notifications, setNotifications] = useState([
+    { id: 1, text: "New book \"The Midnight Library\" is now available!", time: "2 hours ago", unread: true },
+    { id: 2, text: "Your order #12345 has been shipped", time: "1 day ago", unread: true },
+    { id: 3, text: "Special offer: 20% off on all fiction books", time: "3 days ago", unread: false }
+  ]);
+
+  useEffect(() => {
+    // Simulate loading books from an API
+    const loadBooks = () => {
+      setBooks(booksData);
+    };
+    
+    loadBooks();
+    
+    // Add scroll event for animations
+    const bookCards = document.querySelectorAll('.book-card');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-fade-in');
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    bookCards.forEach(card => {
+      observer.observe(card);
+    });
+    
+    return () => {
+      bookCards.forEach(card => {
+        observer.unobserve(card);
+      });
+    };
+  }, []);
+
+  const markAllAsRead = () => {
+    const updatedNotifications = notifications.map(notification => ({
+      ...notification,
+      unread: false
+    }));
+    
+    setNotifications(updatedNotifications);
+    setUnreadCount(0);
+    setShowNotifications(false);
+  };
+
+  // Generate rating stars
+  const renderStars = (rating: number) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<span key={`star-${i}`} className="rating-star">★</span>);
+    }
+    
+    if (hasHalfStar) {
+      stars.push(<span key="half-star" className="rating-star">☆</span>);
+    }
+    
+    const emptyStars = 5 - stars.length;
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<span key={`empty-${i}`} className="text-gray-300">☆</span>);
+    }
+    
+    return stars;
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <>
+      <header className="site-header">
+        <div className="container header-container">
+          <h1 className="logo">BookNest</h1>
+          <nav>
+            <ul className="nav-links">
+              <li><a href="/" className="active">Home</a></li>
+              <li><a href="/cart">Cart</a></li>
+              <li className="notification-container">
+                <button 
+                  className="notification-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowNotifications(!showNotifications);
+                  }}
+                >
+                  <span className="notification-icon">🔔</span>
+                  {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+                </button>
+                {showNotifications && (
+                  <div className="notification-dropdown">
+                    <div className="notification-header">
+                      <h3>Notifications</h3>
+                      <button className="mark-all-read" onClick={markAllAsRead}>
+                        Mark all as read
+                      </button>
+                    </div>
+                    <div className="notification-list">
+                      {notifications.map((notification) => (
+                        <div 
+                          key={notification.id} 
+                          className={`notification-item ${notification.unread ? 'unread' : ''}`}
+                        >
+                          <div className="notification-content">
+                            <p className="notification-text">{notification.text}</p>
+                            <span className="notification-time">{notification.time}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="notification-footer">
+                      <a href="#" className="view-all">
+                        View all notifications
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </li>
+              <li><a href="/login" className="btn-login">Login</a></li>
+              <li><a href="/signup" className="btn-signup">Sign Up</a></li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <section className="hero">
+        <div className="container hero-content">
+          <h2>Discover Your Next Great Read</h2>
+          <p>Explore our collection of bestselling books across all genres</p>
+          <a href="#book-section" className="btn-primary">Browse Books</a>
+        </div>
+      </section>
+
+      <main className="book-section" id="book-section">
+        <div className="container">
+          <h2 className="section-title text-center">Featured Books</h2>
+          <div className="book-grid" id="book-list">
+            {books.map((book) => (
+              <div key={book.id} className="book-card opacity-0" style={{ animationDelay: `${book.id * 0.1}s` }}>
+                <img src={book.imageUrl} alt={book.title} className="book-image" />
+                <div className="book-info">
+                  <h3 className="book-title">{book.title}</h3>
+                  <p className="book-author">by {book.author}</p>
+                  <div className="book-price">${book.price.toFixed(2)}</div>
+                  <div className="book-rating">
+                    {renderStars(book.rating)}
+                    <span className="ml-1 text-sm text-gray-600">({book.rating})</span>
+                  </div>
+                  <div className="book-actions">
+                    <button className="add-to-cart">Add to Cart</button>
+                    <button className="add-to-wishlist text-xl">♡</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+
+      <footer className="site-footer">
+        <div className="container">
+          <div className="footer-content">
+            <div className="footer-section">
+              <h3>About BookNest</h3>
+              <p>Your one-stop destination for all your reading needs. Discover millions of books across various genres.</p>
+            </div>
+            <div className="footer-section">
+              <h3>Quick Links</h3>
+              <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/signup">Sign Up</a></li>
+              </ul>
+            </div>
+            <div className="footer-section">
+              <h3>Contact Us</h3>
+              <p>Email: talukdarsasanka348@gmail.com</p>
+              <p>Phone: +91 9957672629</p>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <p>&copy; {new Date().getFullYear()} BookNest. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Click outside to close notification dropdown */}
+      {showNotifications && (
+        <div 
+          className="fixed inset-0 z-40"
+          onClick={() => setShowNotifications(false)}
+        ></div>
+      )}
+    </>
   );
 };
 
