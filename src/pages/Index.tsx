@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import {
   Pagination,
@@ -9,6 +8,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { useCart } from "@/context/CartContext";
+import { ShoppingCart, Heart } from "lucide-react";
 
 // Book data type
 interface Book {
@@ -91,12 +94,7 @@ const booksData: Book[] = [
 const Index = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(3);
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: "New book \"The Midnight Library\" is now available!", time: "2 hours ago", unread: true },
-    { id: 2, text: "Your order #12345 has been shipped", time: "1 day ago", unread: true },
-    { id: 3, text: "Special offer: 20% off on all fiction books", time: "3 days ago", unread: false }
-  ]);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     // Simulate loading books from an API
@@ -136,17 +134,6 @@ const Index = () => {
     };
   }, []);
 
-  const markAllAsRead = () => {
-    const updatedNotifications = notifications.map(notification => ({
-      ...notification,
-      unread: false
-    }));
-    
-    setNotifications(updatedNotifications);
-    setUnreadCount(0);
-    setShowNotifications(false);
-  };
-
   // Generate rating stars
   const renderStars = (rating: number) => {
     const stars = [];
@@ -169,61 +156,13 @@ const Index = () => {
     return stars;
   };
 
+  const handleAddToCart = (book: Book) => {
+    addToCart(book);
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="site-header">
-        <div className="container header-container">
-          <h1 className="logo">BookNest</h1>
-          <nav>
-            <ul className="nav-links">
-              <li><a href="/" className="active">Home</a></li>
-              <li><a href="/cart">Cart</a></li>
-              <li className="notification-container">
-                <button 
-                  className="notification-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowNotifications(!showNotifications);
-                  }}
-                >
-                  <span className="notification-icon">🔔</span>
-                  {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
-                </button>
-                {showNotifications && (
-                  <div className="notification-dropdown">
-                    <div className="notification-header">
-                      <h3>Notifications</h3>
-                      <button className="mark-all-read" onClick={markAllAsRead}>
-                        Mark all as read
-                      </button>
-                    </div>
-                    <div className="notification-list">
-                      {notifications.map((notification) => (
-                        <div 
-                          key={notification.id} 
-                          className={`notification-item ${notification.unread ? 'unread' : ''}`}
-                        >
-                          <div className="notification-content">
-                            <p className="notification-text">{notification.text}</p>
-                            <span className="notification-time">{notification.time}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="notification-footer">
-                      <a href="#" className="view-all">
-                        View all notifications
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </li>
-              <li><a href="/login" className="btn-login">Login</a></li>
-              <li><a href="/signup" className="btn-signup">Sign Up</a></li>
-            </ul>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <section className="hero">
         <div className="container hero-content">
@@ -253,8 +192,16 @@ const Index = () => {
                     <span className="ml-1 text-sm text-gray-600">({book.rating})</span>
                   </div>
                   <div className="book-actions">
-                    <button className="add-to-cart">Add to Cart</button>
-                    <button className="add-to-wishlist text-xl">♡</button>
+                    <button 
+                      className="add-to-cart flex items-center gap-1"
+                      onClick={() => handleAddToCart(book)}
+                    >
+                      <ShoppingCart size={16} />
+                      <span>Add to Cart</span>
+                    </button>
+                    <button className="add-to-wishlist text-xl">
+                      <Heart size={20} />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -288,35 +235,8 @@ const Index = () => {
         </div>
       </main>
 
-      <footer className="site-footer mt-auto">
-        <div className="container">
-          <div className="footer-content">
-            <div className="footer-section">
-              <h3>About BookNest</h3>
-              <p>Your one-stop destination for all your reading needs. Discover millions of books across various genres.</p>
-            </div>
-            <div className="footer-section">
-              <h3>Quick Links</h3>
-              <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/cart">Cart</a></li>
-                <li><a href="/login">Login</a></li>
-                <li><a href="/signup">Sign Up</a></li>
-              </ul>
-            </div>
-            <div className="footer-section">
-              <h3>Contact Us</h3>
-              <p>Email: talukdarsasanka348@gmail.com</p>
-              <p>Phone: +91 9957672629</p>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>&copy; {new Date().getFullYear()} BookNest. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
-      {/* Click outside to close notification dropdown */}
       {showNotifications && (
         <div 
           className="fixed inset-0 z-40"
