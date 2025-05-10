@@ -1,5 +1,14 @@
 
 import { useState, useEffect } from 'react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 // Book data type
 interface Book {
@@ -98,20 +107,29 @@ const Index = () => {
     loadBooks();
     
     // Add scroll event for animations
-    const bookCards = document.querySelectorAll('.book-card');
-    const observer = new IntersectionObserver((entries) => {
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('animate-fade-in');
+          entry.target.classList.remove('opacity-0');
         }
       });
-    }, { threshold: 0.1 });
+    };
     
-    bookCards.forEach(card => {
-      observer.observe(card);
+    const observer = new IntersectionObserver(handleIntersection, { 
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
     });
     
+    setTimeout(() => {
+      const bookCards = document.querySelectorAll('.book-card');
+      bookCards.forEach(card => {
+        observer.observe(card);
+      });
+    }, 100);
+    
     return () => {
+      const bookCards = document.querySelectorAll('.book-card');
       bookCards.forEach(card => {
         observer.unobserve(card);
       });
@@ -152,7 +170,7 @@ const Index = () => {
   };
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <header className="site-header">
         <div className="container header-container">
           <h1 className="logo">BookNest</h1>
@@ -220,7 +238,11 @@ const Index = () => {
           <h2 className="section-title text-center">Featured Books</h2>
           <div className="book-grid" id="book-list">
             {books.map((book) => (
-              <div key={book.id} className="book-card opacity-0" style={{ animationDelay: `${book.id * 0.1}s` }}>
+              <div 
+                key={book.id} 
+                className="book-card opacity-0" 
+                style={{ animationDelay: `${book.id * 0.1}s` }}
+              >
                 <img src={book.imageUrl} alt={book.title} className="book-image" />
                 <div className="book-info">
                   <h3 className="book-title">{book.title}</h3>
@@ -238,10 +260,35 @@ const Index = () => {
               </div>
             ))}
           </div>
+          
+          <div className="mt-8">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious href="#" />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#" isActive>1</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#">2</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#">3</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext href="#" />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </div>
       </main>
 
-      <footer className="site-footer">
+      <footer className="site-footer mt-auto">
         <div className="container">
           <div className="footer-content">
             <div className="footer-section">
@@ -276,7 +323,7 @@ const Index = () => {
           onClick={() => setShowNotifications(false)}
         ></div>
       )}
-    </>
+    </div>
   );
 };
 
