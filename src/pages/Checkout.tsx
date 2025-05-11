@@ -15,19 +15,23 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { CreditCard, Package, Truck } from "lucide-react";
+import { CreditCard, Package, Truck, ArrowRight, ArrowLeft } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
 
-const formSchema = z.object({
+// Separate schemas for shipping and payment
+const shippingSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email" }),
   address: z.string().min(5, { message: "Address must be at least 5 characters" }),
   city: z.string().min(2, { message: "City must be at least 2 characters" }),
   state: z.string().min(2, { message: "State must be at least 2 characters" }),
   zipCode: z.string().min(5, { message: "Zip code must be at least 5 characters" }),
+});
+
+const paymentSchema = z.object({
   cardName: z.string().min(2, { message: "Name on card must be at least 2 characters" }),
   cardNumber: z.string().min(16, { message: "Card number must be at least 16 digits" }).max(16),
   expiryDate: z.string().min(5, { message: "Expiry date must be in MM/YY format" }),
@@ -38,6 +42,8 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const { cartItems, getTotalPrice, clearCart } = useCart();
   const [shippingMethod, setShippingMethod] = useState("standard");
+  const [checkoutStep, setCheckoutStep] = useState("shipping"); // shipping, payment
+  const [shippingData, setShippingData] = useState<z.infer<typeof shippingSchema> | null>(null);
   
   // Check if cart is empty and redirect to cart page if it is
   if (cartItems.length === 0) {
@@ -45,8 +51,8 @@ const CheckoutPage = () => {
     return null;
   }
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const shippingForm = useForm<z.infer<typeof shippingSchema>>({
+    resolver: zodResolver(shippingSchema),
     defaultValues: {
       fullName: "",
       email: "",
@@ -54,6 +60,12 @@ const CheckoutPage = () => {
       city: "",
       state: "",
       zipCode: "",
+    },
+  });
+
+  const paymentForm = useForm<z.infer<typeof paymentSchema>>({
+    resolver: zodResolver(paymentSchema),
+    defaultValues: {
       cardName: "",
       cardNumber: "",
       expiryDate: "",
@@ -61,15 +73,26 @@ const CheckoutPage = () => {
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleShippingSubmit = (values: z.infer<typeof shippingSchema>) => {
+    setShippingData(values);
+    setCheckoutStep("payment");
+    toast.success("Shipping information saved");
+  };
+
+  const handleBackToShipping = () => {
+    setCheckoutStep("shipping");
+  };
+
+  const handlePaymentSubmit = (values: z.infer<typeof paymentSchema>) => {
     // In a real app, this would connect to a payment processor
-    console.log("Form submitted with values:", values);
+    console.log("Payment form submitted with values:", values);
+    console.log("Shipping data:", shippingData);
     
     // Simulate processing payment
     toast.info("Processing payment...");
     
     setTimeout(() => {
-      toast.success("Order placed successfully!");
+      toast.success("Payment successful! Your order has been placed.");
       clearCart();
       navigate("/order-confirmation");
     }, 2000);
@@ -98,6 +121,32 @@ const CheckoutPage = () => {
       
       <main className="container mx-auto py-10 px-4 flex-grow">
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+        
+        {/* Progress indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center">
+            <div className={`flex items-center ${checkoutStep === "shipping" ? "text-primary" : "text-gray-500"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${checkoutStep === "shipping" ? "bg-primary text-white" : "bg-gray-200"}`}>
+                1
+              </div>
+              <span className="ml-2 font-medium">Shipping</span>
+            </div>
+            <div className="h-1 w-16 mx-2 bg-gray-200"></div>
+            <div className={`flex items-center ${checkoutStep === "payment" ? "text-primary" : "text-gray-500"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${checkoutStep === "payment" ? "bg-primary text-white" : "bg-gray-200"}`}>
+                2
+              </div>
+              <span className="ml-2 font-medium">Payment</span>
+            </div>
+            <div className="h-1 w-16 mx-2 bg-gray-200"></div>
+            <div className="flex items-center text-gray-500">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200">
+                3
+              </div>
+              <span className="ml-2 font-medium">Confirmation</span>
+            </div>
+          </div>
+        </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Order Summary */}
@@ -131,21 +180,194 @@ const CheckoutPage = () => {
             </CardContent>
           </Card>
           
-          {/* Checkout Form */}
+          {/* Checkout Forms */}
           <div className="lg:col-span-2 space-y-6">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                {/* Shipping Information */}
-                <div className="space-y-4">
-                  <h2 className="text-xl font-semibold">Shipping Information</h2>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Shipping Step */}
+            {checkoutStep === "shipping" && (
+              <Form {...shippingForm}>
+                <form onSubmit={shippingForm.handleSubmit(handleShippingSubmit)} className="space-y-6">
+                  {/* Shipping Information */}
+                  <div className="space-y-4">
+                    <h2 className="text-xl font-semibold">Shipping Information</h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={shippingForm.control}
+                        name="fullName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Full Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="John Doe" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={shippingForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input placeholder="john@example.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
                     <FormField
-                      control={form.control}
-                      name="fullName"
+                      control={shippingForm.control}
+                      name="address"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Full Name</FormLabel>
+                          <FormLabel>Address</FormLabel>
+                          <FormControl>
+                            <Input placeholder="123 Main St" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <FormField
+                        control={shippingForm.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>City</FormLabel>
+                            <FormControl>
+                              <Input placeholder="New York" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={shippingForm.control}
+                        name="state"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>State</FormLabel>
+                            <FormControl>
+                              <Input placeholder="NY" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={shippingForm.control}
+                        name="zipCode"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Zip Code</FormLabel>
+                            <FormControl>
+                              <Input placeholder="10001" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Shipping Method */}
+                  <div className="space-y-4">
+                    <h2 className="text-xl font-semibold">Shipping Method</h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div
+                        className={`p-4 border rounded-md cursor-pointer transition-all ${
+                          shippingMethod === "standard" 
+                            ? "border-primary bg-primary/5" 
+                            : "hover:border-gray-400"
+                        }`}
+                        onClick={() => setShippingMethod("standard")}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <Truck size={18} className="mr-2" />
+                            <span className="font-medium">Standard</span>
+                          </div>
+                          <span className="text-sm font-semibold">$4.99</span>
+                        </div>
+                        <p className="text-sm text-gray-500">Delivery in 3-5 business days</p>
+                      </div>
+                      
+                      <div
+                        className={`p-4 border rounded-md cursor-pointer transition-all ${
+                          shippingMethod === "express" 
+                            ? "border-primary bg-primary/5" 
+                            : "hover:border-gray-400"
+                        }`}
+                        onClick={() => setShippingMethod("express")}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <Package size={18} className="mr-2" />
+                            <span className="font-medium">Express</span>
+                          </div>
+                          <span className="text-sm font-semibold">$14.99</span>
+                        </div>
+                        <p className="text-sm text-gray-500">Delivery in 1-2 business days</p>
+                      </div>
+                      
+                      <div
+                        className={`p-4 border rounded-md cursor-pointer transition-all ${
+                          shippingMethod === "next-day" 
+                            ? "border-primary bg-primary/5" 
+                            : "hover:border-gray-400"
+                        }`}
+                        onClick={() => setShippingMethod("next-day")}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <Truck size={18} className="mr-2" />
+                            <span className="font-medium">Next Day</span>
+                          </div>
+                          <span className="text-sm font-semibold">$24.99</span>
+                        </div>
+                        <p className="text-sm text-gray-500">Delivered by tomorrow</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-4">
+                    <Button type="submit" className="w-full flex items-center justify-center">
+                      Continue to Payment <ArrowRight className="ml-2" size={16} />
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            )}
+
+            {/* Payment Step */}
+            {checkoutStep === "payment" && (
+              <Form {...paymentForm}>
+                <form onSubmit={paymentForm.handleSubmit(handlePaymentSubmit)} className="space-y-6">
+                  {/* Payment Information */}
+                  <div className="space-y-4">
+                    <h2 className="text-xl font-semibold">Payment Information</h2>
+                    
+                    <div className="flex items-center mb-4">
+                      <CreditCard size={20} className="mr-2" />
+                      <span className="font-medium">Credit Card</span>
+                    </div>
+                    
+                    <FormField
+                      control={paymentForm.control}
+                      name="cardName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name on Card</FormLabel>
                           <FormControl>
                             <Input placeholder="John Doe" {...field} />
                           </FormControl>
@@ -155,215 +377,74 @@ const CheckoutPage = () => {
                     />
                     
                     <FormField
-                      control={form.control}
-                      name="email"
+                      control={paymentForm.control}
+                      name="cardNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>Card Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="john@example.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address</FormLabel>
-                        <FormControl>
-                          <Input placeholder="123 Main St" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>City</FormLabel>
-                          <FormControl>
-                            <Input placeholder="New York" {...field} />
+                            <Input placeholder="1234 5678 9012 3456" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                     
-                    <FormField
-                      control={form.control}
-                      name="state"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>State</FormLabel>
-                          <FormControl>
-                            <Input placeholder="NY" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="zipCode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Zip Code</FormLabel>
-                          <FormControl>
-                            <Input placeholder="10001" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-                
-                {/* Shipping Method */}
-                <div className="space-y-4">
-                  <h2 className="text-xl font-semibold">Shipping Method</h2>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div
-                      className={`p-4 border rounded-md cursor-pointer transition-all ${
-                        shippingMethod === "standard" 
-                          ? "border-primary bg-primary/5" 
-                          : "hover:border-gray-400"
-                      }`}
-                      onClick={() => setShippingMethod("standard")}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <Truck size={18} className="mr-2" />
-                          <span className="font-medium">Standard</span>
-                        </div>
-                        <span className="text-sm font-semibold">$4.99</span>
-                      </div>
-                      <p className="text-sm text-gray-500">Delivery in 3-5 business days</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={paymentForm.control}
+                        name="expiryDate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Expiry Date</FormLabel>
+                            <FormControl>
+                              <Input placeholder="MM/YY" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={paymentForm.control}
+                        name="cvv"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>CVV</FormLabel>
+                            <FormControl>
+                              <Input placeholder="123" type="password" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
-                    
-                    <div
-                      className={`p-4 border rounded-md cursor-pointer transition-all ${
-                        shippingMethod === "express" 
-                          ? "border-primary bg-primary/5" 
-                          : "hover:border-gray-400"
-                      }`}
-                      onClick={() => setShippingMethod("express")}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <Package size={18} className="mr-2" />
-                          <span className="font-medium">Express</span>
+
+                    {/* Shipping info summary */}
+                    <div className="bg-gray-50 p-4 rounded-md mt-6">
+                      <h3 className="font-medium mb-2">Shipping Details</h3>
+                      {shippingData && (
+                        <div className="text-sm space-y-1">
+                          <p>{shippingData.fullName}</p>
+                          <p>{shippingData.address}</p>
+                          <p>{shippingData.city}, {shippingData.state} {shippingData.zipCode}</p>
+                          <p>{shippingData.email}</p>
                         </div>
-                        <span className="text-sm font-semibold">$14.99</span>
-                      </div>
-                      <p className="text-sm text-gray-500">Delivery in 1-2 business days</p>
-                    </div>
-                    
-                    <div
-                      className={`p-4 border rounded-md cursor-pointer transition-all ${
-                        shippingMethod === "next-day" 
-                          ? "border-primary bg-primary/5" 
-                          : "hover:border-gray-400"
-                      }`}
-                      onClick={() => setShippingMethod("next-day")}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <Truck size={18} className="mr-2" />
-                          <span className="font-medium">Next Day</span>
-                        </div>
-                        <span className="text-sm font-semibold">$24.99</span>
-                      </div>
-                      <p className="text-sm text-gray-500">Delivered by tomorrow</p>
+                      )}
                     </div>
                   </div>
-                </div>
-                
-                {/* Payment Information */}
-                <div className="space-y-4">
-                  <h2 className="text-xl font-semibold">Payment Information</h2>
                   
-                  <div className="flex items-center mb-4">
-                    <CreditCard size={20} className="mr-2" />
-                    <span className="font-medium">Credit Card</span>
+                  <div className="pt-4 flex gap-4">
+                    <Button type="button" variant="outline" onClick={handleBackToShipping} className="flex items-center">
+                      <ArrowLeft className="mr-2" size={16} /> Back
+                    </Button>
+                    <Button type="submit" className="flex-1">
+                      Pay ${total.toFixed(2)}
+                    </Button>
                   </div>
-                  
-                  <FormField
-                    control={form.control}
-                    name="cardName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name on Card</FormLabel>
-                        <FormControl>
-                          <Input placeholder="John Doe" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="cardNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Card Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="1234 5678 9012 3456" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="expiryDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Expiry Date</FormLabel>
-                          <FormControl>
-                            <Input placeholder="MM/YY" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="cvv"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>CVV</FormLabel>
-                          <FormControl>
-                            <Input placeholder="123" type="password" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-                
-                <div className="pt-4">
-                  <Button type="submit" className="w-full">
-                    Place Order - ${total.toFixed(2)}
-                  </Button>
-                </div>
-              </form>
-            </Form>
+                </form>
+              </Form>
+            )}
           </div>
         </div>
       </main>

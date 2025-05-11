@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { PackageCheck } from "lucide-react";
+import { PackageCheck, CheckCircle } from "lucide-react";
 
 const OrderConfirmation = () => {
   // Generate a random order number
@@ -16,11 +16,11 @@ const OrderConfirmation = () => {
       <main className="container mx-auto py-16 px-4 flex-grow flex items-center justify-center">
         <div className="max-w-md w-full text-center">
           <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-            <PackageCheck className="h-8 w-8 text-green-600" />
+            <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
           
-          <h1 className="text-3xl font-bold mb-2">Thank You!</h1>
-          <p className="text-xl mb-6">Your order has been placed</p>
+          <h1 className="text-3xl font-bold mb-2">Order Confirmed Successfully!</h1>
+          <p className="text-xl mb-6">Thank you for your purchase</p>
           
           <div className="bg-gray-50 border border-gray-200 rounded-md p-6 mb-8">
             <p className="text-gray-600 mb-2">Order Number</p>
