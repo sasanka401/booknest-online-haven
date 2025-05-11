@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { CreditCard, Package, Truck, ArrowRight, ArrowLeft } from "lucide-react";
+import { CreditCard, Package, Truck, ArrowRight, ArrowLeft, Phone, User, Building, Mail } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -23,12 +23,33 @@ import { toast } from "sonner";
 
 // Separate schemas for shipping and payment
 const shippingSchema = z.object({
-  fullName: z.string().min(2, { message: "Full name must be at least 2 characters" }),
-  email: z.string().email({ message: "Please enter a valid email" }),
-  address: z.string().min(5, { message: "Address must be at least 5 characters" }),
-  city: z.string().min(2, { message: "City must be at least 2 characters" }),
-  state: z.string().min(2, { message: "State must be at least 2 characters" }),
-  zipCode: z.string().min(5, { message: "Zip code must be at least 5 characters" }),
+  fullName: z
+    .string()
+    .min(2, { message: "Full name must be at least 2 characters" })
+    .regex(/^[a-zA-Z\s]+$/, { message: "Full name must contain only letters" }),
+  phoneNumber: z
+    .string()
+    .min(10, { message: "Phone number must be at least 10 digits" })
+    .regex(/^[0-9]+$/, { message: "Phone number must contain only numbers" }),
+  email: z
+    .string()
+    .email({ message: "Please enter a valid email" }),
+  address: z
+    .string()
+    .min(5, { message: "Address must be at least 5 characters" }),
+  city: z
+    .string()
+    .min(2, { message: "City must be at least 2 characters" })
+    .regex(/^[a-zA-Z\s]+$/, { message: "City must contain only letters" }),
+  state: z
+    .string()
+    .min(2, { message: "State must be at least 2 characters" })
+    .regex(/^[a-zA-Z\s]+$/, { message: "State must contain only letters" }),
+  pinCode: z
+    .string()
+    .min(5, { message: "PIN code must be at least 5 digits" })
+    .max(6, { message: "PIN code cannot exceed 6 digits" })
+    .regex(/^[0-9]+$/, { message: "PIN code must contain only digits" }),
 });
 
 const paymentSchema = z.object({
@@ -55,11 +76,12 @@ const CheckoutPage = () => {
     resolver: zodResolver(shippingSchema),
     defaultValues: {
       fullName: "",
+      phoneNumber: "",
       email: "",
       address: "",
       city: "",
       state: "",
-      zipCode: "",
+      pinCode: "",
     },
   });
 
@@ -198,7 +220,10 @@ const CheckoutPage = () => {
                           <FormItem>
                             <FormLabel>Full Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="John Doe" {...field} />
+                              <div className="relative">
+                                <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                                <Input placeholder="John Doe" {...field} className="pl-10" />
+                              </div>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -207,12 +232,15 @@ const CheckoutPage = () => {
                       
                       <FormField
                         control={shippingForm.control}
-                        name="email"
+                        name="phoneNumber"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Email</FormLabel>
+                            <FormLabel>Phone Number</FormLabel>
                             <FormControl>
-                              <Input placeholder="john@example.com" {...field} />
+                              <div className="relative">
+                                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                                <Input placeholder="9876543210" {...field} className="pl-10" />
+                              </div>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -222,12 +250,32 @@ const CheckoutPage = () => {
                     
                     <FormField
                       control={shippingForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                              <Input placeholder="john@example.com" {...field} className="pl-10" />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={shippingForm.control}
                       name="address"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Address</FormLabel>
                           <FormControl>
-                            <Input placeholder="123 Main St" {...field} />
+                            <div className="relative">
+                              <Building className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                              <Input placeholder="123 Main St" {...field} className="pl-10" />
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -240,7 +288,7 @@ const CheckoutPage = () => {
                         name="city"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>City</FormLabel>
+                            <FormLabel>City/Village</FormLabel>
                             <FormControl>
                               <Input placeholder="New York" {...field} />
                             </FormControl>
@@ -265,10 +313,10 @@ const CheckoutPage = () => {
                       
                       <FormField
                         control={shippingForm.control}
-                        name="zipCode"
+                        name="pinCode"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Zip Code</FormLabel>
+                            <FormLabel>PIN Code</FormLabel>
                             <FormControl>
                               <Input placeholder="10001" {...field} />
                             </FormControl>
@@ -426,8 +474,9 @@ const CheckoutPage = () => {
                       {shippingData && (
                         <div className="text-sm space-y-1">
                           <p>{shippingData.fullName}</p>
+                          <p>{shippingData.phoneNumber}</p>
                           <p>{shippingData.address}</p>
-                          <p>{shippingData.city}, {shippingData.state} {shippingData.zipCode}</p>
+                          <p>{shippingData.city}, {shippingData.state} {shippingData.pinCode}</p>
                           <p>{shippingData.email}</p>
                         </div>
                       )}
