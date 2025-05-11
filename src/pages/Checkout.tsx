@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
@@ -15,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { CreditCard, Package, Truck, ArrowRight, ArrowLeft, Phone, User, Building, Mail } from "lucide-react";
+import { CreditCard, Package, Truck, ArrowRight, ArrowLeft, Phone, User, Building, Mail, IndianRupee } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -124,11 +123,11 @@ const CheckoutPage = () => {
   const getShippingCost = () => {
     switch (shippingMethod) {
       case "express":
-        return 14.99;
+        return 1199;
       case "next-day":
-        return 24.99;
+        return 1999;
       default:
-        return 4.99;
+        return 399;
     }
   };
 
@@ -180,7 +179,7 @@ const CheckoutPage = () => {
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <span>{item.title} × {item.quantity}</span>
-                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />{(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -188,15 +187,15 @@ const CheckoutPage = () => {
               <div className="border-t pt-3 mt-3 space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span className="flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>${shipping.toFixed(2)}</span>
+                  <span className="flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />{shipping.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-bold pt-2 border-t">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span className="flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />{total.toFixed(2)}</span>
                 </div>
               </div>
             </CardContent>
@@ -345,7 +344,7 @@ const CheckoutPage = () => {
                             <Truck size={18} className="mr-2" />
                             <span className="font-medium">Standard</span>
                           </div>
-                          <span className="text-sm font-semibold">$4.99</span>
+                          <span className="text-sm font-semibold flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />399</span>
                         </div>
                         <p className="text-sm text-gray-500">Delivery in 3-5 business days</p>
                       </div>
@@ -363,7 +362,7 @@ const CheckoutPage = () => {
                             <Package size={18} className="mr-2" />
                             <span className="font-medium">Express</span>
                           </div>
-                          <span className="text-sm font-semibold">$14.99</span>
+                          <span className="text-sm font-semibold flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />1199</span>
                         </div>
                         <p className="text-sm text-gray-500">Delivery in 1-2 business days</p>
                       </div>
@@ -381,7 +380,7 @@ const CheckoutPage = () => {
                             <Truck size={18} className="mr-2" />
                             <span className="font-medium">Next Day</span>
                           </div>
-                          <span className="text-sm font-semibold">$24.99</span>
+                          <span className="text-sm font-semibold flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />1999</span>
                         </div>
                         <p className="text-sm text-gray-500">Delivered by tomorrow</p>
                       </div>
@@ -487,8 +486,8 @@ const CheckoutPage = () => {
                     <Button type="button" variant="outline" onClick={handleBackToShipping} className="flex items-center">
                       <ArrowLeft className="mr-2" size={16} /> Back
                     </Button>
-                    <Button type="submit" className="flex-1">
-                      Pay ${total.toFixed(2)}
+                    <Button type="submit" className="flex-1 flex items-center justify-center">
+                      Pay <IndianRupee className="h-4 w-4 mx-1" />{total.toFixed(2)}
                     </Button>
                   </div>
                 </form>
