@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Link } from "react-router-dom";
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCart();
@@ -19,10 +20,6 @@ const Cart = () => {
     if (currentQuantity > 1) {
       updateQuantity(id, currentQuantity - 1);
     }
-  };
-  
-  const handleCheckout = () => {
-    alert("Checkout functionality will be implemented soon!");
   };
 
   return (
@@ -128,9 +125,9 @@ const Cart = () => {
                 </div>
                 <Button 
                   className="w-full mt-4" 
-                  onClick={handleCheckout}
+                  asChild
                 >
-                  Checkout
+                  <Link to="/checkout">Proceed to Checkout</Link>
                 </Button>
               </div>
             </div>
