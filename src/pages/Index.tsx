@@ -12,6 +12,7 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { ShoppingCart, Heart, IndianRupee } from "lucide-react";
 
 // Book data type
@@ -96,6 +97,7 @@ const Index = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
     // Simulate loading books from an API
@@ -161,6 +163,14 @@ const Index = () => {
     addToCart(book);
   };
 
+  const handleToggleWishlist = (book: Book) => {
+    if (isInWishlist(book.id)) {
+      removeFromWishlist(book.id);
+    } else {
+      addToWishlist(book);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -203,8 +213,12 @@ const Index = () => {
                       <ShoppingCart size={16} />
                       <span>Add to Cart</span>
                     </button>
-                    <button className="add-to-wishlist text-xl">
-                      <Heart size={20} />
+                    <button 
+                      className={`add-to-wishlist ${isInWishlist(book.id) ? 'text-red-500' : 'text-gray-400'}`}
+                      onClick={() => handleToggleWishlist(book)}
+                      aria-label={isInWishlist(book.id) ? "Remove from wishlist" : "Add to wishlist"}
+                    >
+                      <Heart size={20} fill={isInWishlist(book.id) ? "currentColor" : "none"} />
                     </button>
                   </div>
                 </div>

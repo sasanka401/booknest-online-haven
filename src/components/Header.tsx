@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
-import { ShoppingCart, MapPin, Package, Bell } from "lucide-react";
+import { useWishlist } from "@/context/WishlistContext";
+import { IndianRupee, ShoppingCart, MapPin, Package, Bell, Heart } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -23,6 +24,7 @@ interface Notification {
 const Header = () => {
   const location = useLocation();
   const { getTotalItems } = useCart();
+  const { getWishlistCount } = useWishlist();
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
   const [notifications, setNotifications] = useState<Notification[]>([
@@ -77,11 +79,23 @@ const Header = () => {
           <ul className="nav-links">
             <li className="hidden md:block">
               <Link to="/cart" className={cn("relative flex items-center", location.pathname === "/cart" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
-                <ShoppingCart className="mr-1" size={18} />
+                <IndianRupee className="mr-1" size={18} />
                 <span>Cart</span>
                 {getTotalItems() > 0 && (
                   <span className="absolute -top-2 -right-3 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {getTotalItems()}
+                  </span>
+                )}
+              </Link>
+            </li>
+            
+            <li className="hidden md:block">
+              <Link to="/wishlist" className={cn("relative flex items-center ml-4", location.pathname === "/wishlist" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
+                <Heart className="mr-1" size={18} />
+                <span>Wishlist</span>
+                {getWishlistCount() > 0 && (
+                  <span className="absolute -top-2 -right-3 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {getWishlistCount()}
                   </span>
                 )}
               </Link>
