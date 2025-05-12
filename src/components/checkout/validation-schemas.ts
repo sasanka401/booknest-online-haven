@@ -1,4 +1,3 @@
-
 import * as z from "zod";
 
 // Separate schemas for shipping and payment
@@ -33,10 +32,11 @@ export const shippingSchema = z.object({
 });
 
 export const paymentSchema = z.object({
-  cardName: z.string().min(2, { message: "Name on card must be at least 2 characters" }),
-  cardNumber: z.string().min(16, { message: "Card number must be at least 16 digits" }).max(16),
-  expiryDate: z.string().min(5, { message: "Expiry date must be in MM/YY format" }),
-  cvv: z.string().min(3, { message: "CVV must be at least 3 digits" }).max(4),
+  cardName: z.string().optional(),
+  cardNumber: z.string().optional(),
+  expiryDate: z.string().optional(),
+  cvv: z.string().optional(),
+  paymentMethod: z.string().optional(),
 });
 
 export type ShippingFormValues = z.infer<typeof shippingSchema>;

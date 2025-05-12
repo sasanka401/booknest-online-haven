@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,9 +13,9 @@ import {
   CreditCard, 
   ArrowLeft, 
   IndianRupee,
-  DebitCard, 
-  Banknote, 
-  Cash
+  Banknote,
+  Wallet,
+  CircleDollarSign
 } from "lucide-react";
 import { 
   RadioGroup, 
@@ -49,6 +48,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       cardNumber: "",
       expiryDate: "",
       cvv: "",
+      paymentMethod: "credit-card"
     },
   });
 
@@ -81,7 +81,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
             <div className={`border rounded-md p-4 cursor-pointer ${paymentMethod === "debit-card" ? "border-primary bg-primary/5" : "border-gray-200"}`}>
               <RadioGroupItem value="debit-card" id="debit-card" className="sr-only" />
               <label htmlFor="debit-card" className="flex items-center gap-3 cursor-pointer">
-                <DebitCard className="h-5 w-5 text-primary" />
+                <CreditCard className="h-5 w-5 text-primary" />
                 <span className="font-medium">Debit Card</span>
               </label>
             </div>
@@ -109,7 +109,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
             <div className={`border rounded-md p-4 cursor-pointer ${paymentMethod === "cash-on-delivery" ? "border-primary bg-primary/5" : "border-gray-200"}`}>
               <RadioGroupItem value="cash-on-delivery" id="cash-on-delivery" className="sr-only" />
               <label htmlFor="cash-on-delivery" className="flex items-center gap-3 cursor-pointer">
-                <Cash className="h-5 w-5 text-primary" />
+                <CircleDollarSign className="h-5 w-5 text-primary" />
                 <span className="font-medium">Cash on Delivery</span>
               </label>
             </div>
