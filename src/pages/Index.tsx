@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import {
   Pagination,
@@ -11,7 +12,7 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
-import { ShoppingCart, Heart } from "lucide-react";
+import { ShoppingCart, Heart, IndianRupee } from "lucide-react";
 
 // Book data type
 interface Book {
@@ -29,7 +30,7 @@ const booksData: Book[] = [
     id: 1,
     title: "The Midnight Library",
     author: "Matt Haig",
-    price: 14.99,
+    price: 999,
     imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80",
     rating: 4.5
   },
@@ -37,7 +38,7 @@ const booksData: Book[] = [
     id: 2,
     title: "Educated",
     author: "Tara Westover",
-    price: 12.99,
+    price: 899,
     imageUrl: "https://images.unsplash.com/photo-1495640452828-3df6795cf69b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80",
     rating: 4.8
   },
@@ -45,7 +46,7 @@ const booksData: Book[] = [
     id: 3,
     title: "The Silent Patient",
     author: "Alex Michaelides",
-    price: 13.49,
+    price: 949,
     imageUrl: "https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1076&q=80",
     rating: 4.3
   },
@@ -53,7 +54,7 @@ const booksData: Book[] = [
     id: 4,
     title: "Atomic Habits",
     author: "James Clear",
-    price: 11.99,
+    price: 799,
     imageUrl: "https://images.unsplash.com/photo-1598618253208-d75408cee680?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
     rating: 4.7
   },
@@ -61,7 +62,7 @@ const booksData: Book[] = [
     id: 5,
     title: "Where the Crawdads Sing",
     author: "Delia Owens",
-    price: 15.99,
+    price: 1099,
     imageUrl: "https://images.unsplash.com/photo-1531901599143-df8149257c99?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1981&q=80",
     rating: 4.6
   },
@@ -69,7 +70,7 @@ const booksData: Book[] = [
     id: 6,
     title: "Becoming",
     author: "Michelle Obama",
-    price: 18.99,
+    price: 1299,
     imageUrl: "https://images.unsplash.com/photo-1537495329792-41ae41ad3bf0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=683&q=80",
     rating: 4.9
   },
@@ -77,7 +78,7 @@ const booksData: Book[] = [
     id: 7,
     title: "The Alchemist",
     author: "Paulo Coelho",
-    price: 9.99,
+    price: 699,
     imageUrl: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=688&q=80",
     rating: 4.8
   },
@@ -85,7 +86,7 @@ const booksData: Book[] = [
     id: 8,
     title: "Harry Potter and the Sorcerer's Stone",
     author: "J.K. Rowling",
-    price: 10.99,
+    price: 749,
     imageUrl: "https://images.unsplash.com/photo-1474932430478-367dbb6752c2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
     rating: 4.9
   }
@@ -186,7 +187,10 @@ const Index = () => {
                 <div className="book-info">
                   <h3 className="book-title">{book.title}</h3>
                   <p className="book-author">by {book.author}</p>
-                  <div className="book-price">${book.price.toFixed(2)}</div>
+                  <div className="book-price flex items-center gap-1">
+                    <IndianRupee size={14} />
+                    {book.price.toFixed(0)}
+                  </div>
                   <div className="book-rating">
                     {renderStars(book.rating)}
                     <span className="ml-1 text-sm text-gray-600">({book.rating})</span>
