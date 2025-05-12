@@ -39,8 +39,17 @@ const CheckoutPage = () => {
     console.log("Payment form submitted with values:", values);
     console.log("Shipping data:", shippingData);
     
-    // Simulate processing payment
-    toast.info("Processing payment...");
+    // Customize payment processing message based on the payment method
+    const paymentMethodMessages = {
+      "credit-card": "Processing credit card payment...",
+      "debit-card": "Processing debit card payment...",
+      "upi": "Waiting for UPI confirmation...",
+      "net-banking": "Redirecting to bank portal...",
+      "cash-on-delivery": "Confirming cash on delivery option..."
+    };
+    
+    const paymentMethod = values.paymentMethod || "credit-card";
+    toast.info(paymentMethodMessages[paymentMethod as keyof typeof paymentMethodMessages] || "Processing payment...");
     
     setTimeout(() => {
       toast.success("Payment successful! Your order has been placed.");
