@@ -22,6 +22,11 @@ const Cart = () => {
     }
   };
 
+  // Function to format price in INR
+  const formatPriceInINR = (price: number) => {
+    return `₹${price.toFixed(2)}`;
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -70,7 +75,7 @@ const Cart = () => {
                   
                   <div className="md:text-center">
                     <span className="md:hidden font-medium">Price: </span>
-                    <span>${item.price.toFixed(2)}</span>
+                    <span>{formatPriceInINR(item.price)}</span>
                   </div>
                   
                   <div className="flex items-center justify-center">
@@ -94,7 +99,7 @@ const Cart = () => {
                   
                   <div className="md:text-center">
                     <span className="md:hidden font-medium">Total: </span>
-                    <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="font-semibold">{formatPriceInINR(item.price * item.quantity)}</span>
                   </div>
                 </div>
               ))}
@@ -113,7 +118,7 @@ const Cart = () => {
                 <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
                 <div className="flex justify-between mb-2">
                   <span>Subtotal</span>
-                  <span>${getTotalPrice().toFixed(2)}</span>
+                  <span>{formatPriceInINR(getTotalPrice())}</span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span>Shipping</span>
@@ -121,7 +126,7 @@ const Cart = () => {
                 </div>
                 <div className="border-t pt-2 mt-2 font-semibold flex justify-between">
                   <span>Total</span>
-                  <span>${getTotalPrice().toFixed(2)}</span>
+                  <span>{formatPriceInINR(getTotalPrice())}</span>
                 </div>
                 <Button 
                   className="w-full mt-4" 

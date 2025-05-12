@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { IndianRupee, ShoppingCart, MapPin, Package, Bell, Heart } from "lucide-react";
+import { ShoppingCart, MapPin, Package, Bell, Heart } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -79,7 +79,7 @@ const Header = () => {
           <ul className="nav-links">
             <li className="hidden md:block">
               <Link to="/cart" className={cn("relative flex items-center", location.pathname === "/cart" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
-                <IndianRupee className="mr-1" size={18} />
+                <ShoppingCart className="mr-1" size={18} />
                 <span>Cart</span>
                 {getTotalItems() > 0 && (
                   <span className="absolute -top-2 -right-3 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
