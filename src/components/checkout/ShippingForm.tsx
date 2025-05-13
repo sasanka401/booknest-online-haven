@@ -59,7 +59,13 @@ const ShippingForm: React.FC<ShippingFormProps> = ({
                   <FormControl>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                      <Input placeholder="John Doe" {...field} className="pl-10" />
+                      <Input 
+                        placeholder="John Doe" 
+                        {...field} 
+                        className="pl-10" 
+                        pattern="[A-Za-z ]+"
+                        title="Only letters are allowed"
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -76,7 +82,15 @@ const ShippingForm: React.FC<ShippingFormProps> = ({
                   <FormControl>
                     <div className="relative">
                       <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                      <Input placeholder="9876543210" {...field} className="pl-10" />
+                      <Input 
+                        placeholder="9876543210" 
+                        {...field} 
+                        className="pl-10" 
+                        maxLength={10}
+                        pattern="[0-9]{10}"
+                        title="Phone number must be exactly 10 digits"
+                        inputMode="numeric"
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -94,7 +108,12 @@ const ShippingForm: React.FC<ShippingFormProps> = ({
                 <FormControl>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                    <Input placeholder="john@example.com" {...field} className="pl-10" />
+                    <Input 
+                      placeholder="john@example.com" 
+                      {...field} 
+                      className="pl-10"
+                      type="email" 
+                    />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -127,7 +146,12 @@ const ShippingForm: React.FC<ShippingFormProps> = ({
                 <FormItem>
                   <FormLabel>City/Village</FormLabel>
                   <FormControl>
-                    <Input placeholder="New York" {...field} />
+                    <Input 
+                      placeholder="New York" 
+                      {...field}
+                      pattern="[A-Za-z ]+"
+                      title="Only letters are allowed" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -141,7 +165,12 @@ const ShippingForm: React.FC<ShippingFormProps> = ({
                 <FormItem>
                   <FormLabel>State</FormLabel>
                   <FormControl>
-                    <Input placeholder="NY" {...field} />
+                    <Input 
+                      placeholder="NY" 
+                      {...field}
+                      pattern="[A-Za-z ]+"
+                      title="Only letters are allowed" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -155,7 +184,14 @@ const ShippingForm: React.FC<ShippingFormProps> = ({
                 <FormItem>
                   <FormLabel>PIN Code</FormLabel>
                   <FormControl>
-                    <Input placeholder="10001" {...field} />
+                    <Input 
+                      placeholder="100001" 
+                      {...field}
+                      maxLength={6}
+                      pattern="[0-9]{6}"
+                      title="PIN code must be exactly 6 digits"
+                      inputMode="numeric" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,3 +1,4 @@
+
 import * as z from "zod";
 
 // Separate schemas for shipping and payment
@@ -8,7 +9,7 @@ export const shippingSchema = z.object({
     .regex(/^[a-zA-Z\s]+$/, { message: "Full name must contain only letters" }),
   phoneNumber: z
     .string()
-    .min(10, { message: "Phone number must be at least 10 digits" })
+    .length(10, { message: "Phone number must be exactly 10 digits" })
     .regex(/^[0-9]+$/, { message: "Phone number must contain only numbers" }),
   email: z
     .string()
@@ -26,8 +27,7 @@ export const shippingSchema = z.object({
     .regex(/^[a-zA-Z\s]+$/, { message: "State must contain only letters" }),
   pinCode: z
     .string()
-    .min(5, { message: "PIN code must be at least 5 digits" })
-    .max(6, { message: "PIN code cannot exceed 6 digits" })
+    .length(6, { message: "PIN code must be exactly 6 digits" })
     .regex(/^[0-9]+$/, { message: "PIN code must contain only digits" }),
 });
 
