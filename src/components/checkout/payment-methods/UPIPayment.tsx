@@ -8,7 +8,13 @@ const UPIPayment: React.FC = () => {
       <h2 className="text-xl font-semibold">UPI Payment</h2>
       <div className="bg-gray-50 p-4 rounded-md">
         <p className="mb-2">Enter your UPI ID</p>
-        <Input placeholder="username@upi" />
+        <Input 
+          id="upi-id"
+          placeholder="username@upi" 
+          required
+          pattern=".+@.+"
+          title="Please enter a valid UPI ID (example: username@upi)"
+        />
         <p className="text-sm text-gray-500 mt-2">
           You will receive a payment request on your UPI app
         </p>
