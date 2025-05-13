@@ -14,8 +14,10 @@ import {
   ArrowLeft, 
   IndianRupee,
   Banknote,
-  Wallet,
-  CircleDollarSign
+  CircleDollarSign,
+  User,
+  Calendar,
+  KeyRound
 } from "lucide-react";
 import { 
   RadioGroup, 
@@ -56,6 +58,29 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     // Add payment method to values
     onSubmit({ ...values, paymentMethod });
   };
+  
+  // Format card number to show spaces every 4 digits
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    return v.length > 16 ? v.slice(0, 16) : v;
+  };
+  
+  // Handle expiry date formatting to automatically add the slash
+  const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => {
+    let value = e.target.value.replace(/\D/g, '');
+    
+    if (value.length > 0) {
+      if (value.length <= 2) {
+        onChange(value);
+      } else {
+        const month = value.slice(0, 2);
+        const year = value.slice(2, 4);
+        onChange(`${month}/${year}`);
+      }
+    } else {
+      onChange('');
+    }
+  };
 
   return (
     <Form {...form}>
@@ -67,7 +92,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
           <RadioGroup 
             defaultValue="credit-card" 
             value={paymentMethod} 
-            onValueChange={setPaymentMethod}
+            onValueChange={(value) => {
+              setPaymentMethod(value);
+              form.setValue("paymentMethod", value);
+            }}
             className="grid grid-cols-1 md:grid-cols-2 gap-3"
           >
             <div className={`border rounded-md p-4 cursor-pointer ${paymentMethod === "credit-card" ? "border-primary bg-primary/5" : "border-gray-200"}`}>
@@ -128,7 +156,16 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                 <FormItem>
                   <FormLabel>Name on Card</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input 
+                        placeholder="John Doe" 
+                        {...field} 
+                        className="pl-10" 
+                        pattern="[A-Za-z ]+"
+                        title="Only letters and spaces are allowed" 
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -138,11 +175,23 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
             <FormField
               control={form.control}
               name="cardNumber"
-              render={({ field }) => (
+              render={({ field: { onChange, ...fieldProps } }) => (
                 <FormItem>
                   <FormLabel>Card Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="1234 5678 9012 3456" {...field} />
+                    <div className="relative">
+                      <CreditCard className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input 
+                        placeholder="1234567890123456" 
+                        {...fieldProps}
+                        onChange={(e) => onChange(formatCardNumber(e.target.value))}
+                        className="pl-10" 
+                        maxLength={16}
+                        pattern="[0-9]{16}"
+                        inputMode="numeric"
+                        title="Card number must be 16 digits" 
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -153,11 +202,21 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
               <FormField
                 control={form.control}
                 name="expiryDate"
-                render={({ field }) => (
+                render={({ field: { onChange, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>Expiry Date</FormLabel>
                     <FormControl>
-                      <Input placeholder="MM/YY" {...field} />
+                      <div className="relative">
+                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                        <Input 
+                          placeholder="MM/YY" 
+                          {...fieldProps}
+                          onChange={(e) => handleExpiryDateChange(e, onChange)}
+                          className="pl-10" 
+                          maxLength={5}
+                          inputMode="numeric"
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -171,7 +230,19 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                   <FormItem>
                     <FormLabel>CVV</FormLabel>
                     <FormControl>
-                      <Input placeholder="123" type="password" {...field} />
+                      <div className="relative">
+                        <KeyRound className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                        <Input 
+                          placeholder="123" 
+                          type="password" 
+                          {...field} 
+                          className="pl-10"
+                          maxLength={3}
+                          pattern="[0-9]{3}"
+                          inputMode="numeric"
+                          title="CVV must be 3 digits" 
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

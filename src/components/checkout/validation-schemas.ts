@@ -32,11 +32,29 @@ export const shippingSchema = z.object({
 });
 
 export const paymentSchema = z.object({
-  cardName: z.string().optional(),
-  cardNumber: z.string().optional(),
-  expiryDate: z.string().optional(),
-  cvv: z.string().optional(),
-  paymentMethod: z.string().optional(),
+  cardName: z
+    .string()
+    .regex(/^[a-zA-Z\s]+$/, { message: "Name must contain only letters" })
+    .optional()
+    .or(z.literal('')),
+  cardNumber: z
+    .string()
+    .length(16, { message: "Card number must be exactly 16 digits" })
+    .regex(/^[0-9]+$/, { message: "Card number must contain only digits" })
+    .optional()
+    .or(z.literal('')),
+  expiryDate: z
+    .string()
+    .regex(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, { message: "Expiry date must be in MM/YY format" })
+    .optional()
+    .or(z.literal('')),
+  cvv: z
+    .string()
+    .length(3, { message: "CVV must be exactly 3 digits" })
+    .regex(/^[0-9]+$/, { message: "CVV must contain only digits" })
+    .optional()
+    .or(z.literal('')),
+  paymentMethod: z.string(),
 });
 
 export type ShippingFormValues = z.infer<typeof shippingSchema>;
