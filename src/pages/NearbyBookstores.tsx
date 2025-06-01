@@ -1,5 +1,5 @@
-
-import { useState, useEffect, useRef } from "react";
+// 
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { MapPin, Store } from "lucide-react";
@@ -13,65 +13,70 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Loader } from "@googlemaps/js-api-loader";
 
-// Mock data for bookstores with coordinates
+// Mock data for bookstores
 const mockBookstores = [
   {
     id: 1,
-    name: "City Lights Bookstore",
-    address: "123 Book Street, San Francisco, CA 94133",
-    distance: 0.8,
-    phone: "(415) 555-1234",
+    name: "Assam Book House",
+    address: "C. K. Hazarika Path, sonari patty, New Market, Dibrugarh, Assam 786001",
+    distance: 4.4,
+    phone: "(+91) 9435702060",
     hours: "9:00 AM - 9:00 PM",
-    rating: 4.7,
-    lat: 37.7985,
-    lng: -122.4077,
+    rating: 3.8,
+    mapsUrl: "https://maps.app.goo.gl/qRc19P24xw9TR45Y7"
   },
   {
     id: 2,
-    name: "BookHaven",
-    address: "456 Reader Avenue, San Francisco, CA 94109",
+    name: "BANALATA DIBRUGARH",
+    address: "New Market C, K HAZARIKA PATH, Dibrugarh, Assam 786001",
     distance: 1.2,
-    phone: "(415) 555-5678",
+    phone: "(+91) 8723043073",
     hours: "10:00 AM - 8:00 PM",
-    rating: 4.5,
-    lat: 37.7922,
-    lng: -122.4199,
+    rating: 4.1,
+    mapsUrl: "https://maps.app.goo.gl/HB1wjCbaquZJxSNJA"
   },
   {
     id: 3,
-    name: "The Reading Corner",
-    address: "789 Literary Lane, San Francisco, CA 94102",
+    name: "Students Emporium",
+    address: "New Market, Dibrugarh, Assam 786001",
     distance: 2.1,
-    phone: "(415) 555-9012",
+    phone: "(+91) 3732322699",
     hours: "8:00 AM - 10:00 PM",
-    rating: 4.8,
-    lat: 37.7849,
-    lng: -122.4094,
+    rating: 3.9,
+    mapsUrl: "https://maps.app.goo.gl/MZHZNNr3quL4kVnA7"
   },
   {
     id: 4,
-    name: "Page Turner Books",
-    address: "101 Novel Road, San Francisco, CA 94117",
+    name: "Sriram Book Stall",
+    address: "Shantipara, P N Rd, Dibrugarh, Assam 786001",
     distance: 2.8,
-    phone: "(415) 555-3456",
+    phone: "(+91) 9954952313",
     hours: "9:00 AM - 7:00 PM",
-    rating: 4.3,
-    lat: 37.7692,
-    lng: -122.4481,
+    rating: 4.1,
+    mapsUrl: "https://maps.app.goo.gl/xVL1YqYJBdeh4FJy6"
   },
   {
     id: 5,
-    name: "Bookworm Paradise",
-    address: "202 Story Street, San Francisco, CA 94110",
-    distance: 3.5,
-    phone: "(415) 555-7890",
+    name: "Rainbow Book Store",
+    address: "FVHW+VM6, Dibrugarh, Assam 786001",
+    distance: 4.5,
+    phone: "(+91) 9435734060",  
     hours: "10:00 AM - 9:00 PM",
     rating: 4.6,
-    lat: 37.7516,
-    lng: -122.4177,
+    mapsUrl: "https://maps.app.goo.gl/qw1u3a1cExpWz6cg9"
   },
+  {
+    id: 6,
+    name: "KANGAN STATIONARY STORE",
+    address: "near Bihari Hotel, New Market, Dibrugarh, Assam 786001",
+    distance: 3.5,
+    phone: "(+91) 09401106920",
+    hours: "10:00 AM - 9:00 PM",
+    rating: 4.6,
+    mapsUrl: "https://maps.app.goo.gl/uYKvz4Y14jKkFpxs8"
+  },
+
 ];
 
 const NearbyBookstores = () => {
@@ -79,79 +84,6 @@ const NearbyBookstores = () => {
   const [loading, setLoading] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [showMap, setShowMap] = useState(false);
-  const mapRef = useRef<HTMLDivElement>(null);
-
-  const initializeMap = async (lat: number, lng: number) => {
-    if (!mapRef.current) return;
-
-    try {
-      const loader = new Loader({
-        apiKey: "AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik",
-        version: "weekly",
-        libraries: ["places"]
-      });
-
-      const google = await loader.load();
-      
-      const map = new google.maps.Map(mapRef.current, {
-        center: { lat, lng },
-        zoom: 13,
-      });
-
-      // Add user location marker
-      new google.maps.Marker({
-        position: { lat, lng },
-        map: map,
-        title: "Your Location",
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: '#3B82F6',
-          fillOpacity: 1,
-          strokeColor: '#FFFFFF',
-          strokeWeight: 2,
-          scale: 8,
-        }
-      });
-
-      // Add bookstore markers
-      bookstores.forEach((bookstore) => {
-        const marker = new google.maps.Marker({
-          position: { lat: bookstore.lat, lng: bookstore.lng },
-          map: map,
-          title: bookstore.name,
-          icon: {
-            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-            fillColor: '#DC2626',
-            fillOpacity: 1,
-            strokeColor: '#FFFFFF',
-            strokeWeight: 1,
-            scale: 6,
-          }
-        });
-
-        const infoWindow = new google.maps.InfoWindow({
-          content: `
-            <div class="p-2">
-              <h3 class="font-bold">${bookstore.name}</h3>
-              <p class="text-sm">${bookstore.address}</p>
-              <p class="text-sm">Rating: ${bookstore.rating}⭐</p>
-              <p class="text-sm">${bookstore.hours}</p>
-            </div>
-          `
-        });
-
-        marker.addListener('click', () => {
-          infoWindow.open(map, marker);
-        });
-      });
-
-      setShowMap(true);
-    } catch (error) {
-      console.error('Error loading map:', error);
-      toast.error('Failed to load map. Please try again.');
-    }
-  };
 
   const getUserLocation = () => {
     setLoading(true);
@@ -165,14 +97,12 @@ const NearbyBookstores = () => {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const location = {
+        setUserLocation({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-        };
-        setUserLocation(location);
+        });
         setLoading(false);
-        toast.success("Location found! Loading map with nearby bookstores.");
-        initializeMap(location.lat, location.lng);
+        toast.success("Location found! Showing nearby bookstores.");
       },
       (error) => {
         let errorMessage;
@@ -200,6 +130,8 @@ const NearbyBookstores = () => {
   // Sort bookstores by distance when user location is available
   useEffect(() => {
     if (userLocation) {
+      // In a real app, we would fetch bookstores near the user's location from an API
+      // For now, we'll just sort our mock data by distance
       const sortedBookstores = [...bookstores].sort((a, b) => a.distance - b.distance);
       setBookstores(sortedBookstores);
     }
@@ -233,7 +165,7 @@ const NearbyBookstores = () => {
       <Header />
       
       <main className="flex-1 container py-10">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold mb-2">Find Bookstores Near You</h1>
             <p className="text-muted-foreground">
@@ -267,12 +199,6 @@ const NearbyBookstores = () => {
                 </div>
               )}
             </div>
-
-            {showMap && (
-              <div className="h-96 w-full">
-                <div ref={mapRef} className="h-full w-full" />
-              </div>
-            )}
             
             <div className="overflow-x-auto">
               <Table>
@@ -295,7 +221,7 @@ const NearbyBookstores = () => {
                           <div className="text-sm text-muted-foreground md:hidden">{bookstore.phone}</div>
                         </div>
                       </TableCell>
-                      <TableCell>{bookstore.distance.toFixed(1)} miles</TableCell>
+                      <TableCell>{bookstore.distance.toFixed(1)} km</TableCell>
                       <TableCell className="hidden md:table-cell">{bookstore.hours}</TableCell>
                       <TableCell className="hidden md:table-cell">
                         {renderStars(bookstore.rating)}
@@ -305,7 +231,13 @@ const NearbyBookstores = () => {
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(bookstore.address)}`, '_blank')}
+                            onClick={() => {
+                              if (bookstore.mapsUrl) {
+                                window.open(bookstore.mapsUrl, '_blank');
+                              } else {
+                                window.open(`https://maps.google.com/?q=${encodeURIComponent(bookstore.address)}`, '_blank');
+                              }
+                            }}
                           >
                             <MapPin className="h-4 w-4 mr-1" />
                             Directions
