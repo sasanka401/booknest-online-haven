@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { MapPin, Store } from "lucide-react";
@@ -13,8 +13,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
+import { Loader } from "@googlemaps/js-api-loader";
 
-// Mock data for bookstores
+// Mock data for bookstores with coordinates
 const mockBookstores = [
   {
     id: 1,
@@ -24,6 +25,8 @@ const mockBookstores = [
     phone: "(415) 555-1234",
     hours: "9:00 AM - 9:00 PM",
     rating: 4.7,
+    lat: 37.7985,
+    lng: -122.4077,
   },
   {
     id: 2,
@@ -33,6 +36,8 @@ const mockBookstores = [
     phone: "(415) 555-5678",
     hours: "10:00 AM - 8:00 PM",
     rating: 4.5,
+    lat: 37.7922,
+    lng: -122.4199,
   },
   {
     id: 3,
@@ -42,6 +47,8 @@ const mockBookstores = [
     phone: "(415) 555-9012",
     hours: "8:00 AM - 10:00 PM",
     rating: 4.8,
+    lat: 37.7849,
+    lng: -122.4094,
   },
   {
     id: 4,
@@ -51,6 +58,8 @@ const mockBookstores = [
     phone: "(415) 555-3456",
     hours: "9:00 AM - 7:00 PM",
     rating: 4.3,
+    lat: 37.7692,
+    lng: -122.4481,
   },
   {
     id: 5,
@@ -60,6 +69,8 @@ const mockBookstores = [
     phone: "(415) 555-7890",
     hours: "10:00 AM - 9:00 PM",
     rating: 4.6,
+    lat: 37.7516,
+    lng: -122.4177,
   },
 ];
 
@@ -68,6 +79,79 @@ const NearbyBookstores = () => {
   const [loading, setLoading] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [showMap, setShowMap] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
+
+  const initializeMap = async (lat: number, lng: number) => {
+    if (!mapRef.current) return;
+
+    try {
+      const loader = new Loader({
+        apiKey: "AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik",
+        version: "weekly",
+        libraries: ["places"]
+      });
+
+      const google = await loader.load();
+      
+      const map = new google.maps.Map(mapRef.current, {
+        center: { lat, lng },
+        zoom: 13,
+      });
+
+      // Add user location marker
+      new google.maps.Marker({
+        position: { lat, lng },
+        map: map,
+        title: "Your Location",
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          fillColor: '#3B82F6',
+          fillOpacity: 1,
+          strokeColor: '#FFFFFF',
+          strokeWeight: 2,
+          scale: 8,
+        }
+      });
+
+      // Add bookstore markers
+      bookstores.forEach((bookstore) => {
+        const marker = new google.maps.Marker({
+          position: { lat: bookstore.lat, lng: bookstore.lng },
+          map: map,
+          title: bookstore.name,
+          icon: {
+            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+            fillColor: '#DC2626',
+            fillOpacity: 1,
+            strokeColor: '#FFFFFF',
+            strokeWeight: 1,
+            scale: 6,
+          }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+            <div class="p-2">
+              <h3 class="font-bold">${bookstore.name}</h3>
+              <p class="text-sm">${bookstore.address}</p>
+              <p class="text-sm">Rating: ${bookstore.rating}⭐</p>
+              <p class="text-sm">${bookstore.hours}</p>
+            </div>
+          `
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(map, marker);
+        });
+      });
+
+      setShowMap(true);
+    } catch (error) {
+      console.error('Error loading map:', error);
+      toast.error('Failed to load map. Please try again.');
+    }
+  };
 
   const getUserLocation = () => {
     setLoading(true);
@@ -81,12 +165,14 @@ const NearbyBookstores = () => {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setUserLocation({
+        const location = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-        });
+        };
+        setUserLocation(location);
         setLoading(false);
-        toast.success("Location found! Showing nearby bookstores.");
+        toast.success("Location found! Loading map with nearby bookstores.");
+        initializeMap(location.lat, location.lng);
       },
       (error) => {
         let errorMessage;
@@ -114,8 +200,6 @@ const NearbyBookstores = () => {
   // Sort bookstores by distance when user location is available
   useEffect(() => {
     if (userLocation) {
-      // In a real app, we would fetch bookstores near the user's location from an API
-      // For now, we'll just sort our mock data by distance
       const sortedBookstores = [...bookstores].sort((a, b) => a.distance - b.distance);
       setBookstores(sortedBookstores);
     }
@@ -149,7 +233,7 @@ const NearbyBookstores = () => {
       <Header />
       
       <main className="flex-1 container py-10">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold mb-2">Find Bookstores Near You</h1>
             <p className="text-muted-foreground">
@@ -183,6 +267,12 @@ const NearbyBookstores = () => {
                 </div>
               )}
             </div>
+
+            {showMap && (
+              <div className="h-96 w-full">
+                <div ref={mapRef} className="h-full w-full" />
+              </div>
+            )}
             
             <div className="overflow-x-auto">
               <Table>
