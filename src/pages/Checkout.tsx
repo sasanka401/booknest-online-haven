@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
@@ -10,6 +9,7 @@ import OrderSummary from "@/components/checkout/OrderSummary";
 import ShippingForm from "@/components/checkout/ShippingForm";
 import PaymentForm from "@/components/checkout/PaymentForm";
 import { ShippingFormValues, PaymentFormValues } from "@/components/checkout/validation-schemas";
+import { useOrder } from '@/context/OrderContext';
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ const CheckoutPage = () => {
   const [shippingMethod, setShippingMethod] = useState("standard");
   const [checkoutStep, setCheckoutStep] = useState<"shipping" | "payment" | "confirmation">("shipping");
   const [shippingData, setShippingData] = useState<ShippingFormValues | null>(null);
+  const { setCurrentOrder, addToOrderHistory } = useOrder();
   
   // Check if cart is empty and redirect to cart page if it is
   if (cartItems.length === 0) {
@@ -52,6 +53,31 @@ const CheckoutPage = () => {
     toast.info(paymentMethodMessages[paymentMethod as keyof typeof paymentMethodMessages] || "Processing payment...");
     
     setTimeout(() => {
+      // Create order data
+      const orderData = {
+        orderNumber: Math.floor(Math.random() * 1000000).toString().padStart(6, "0"),
+        orderDate: new Date().toLocaleDateString(),
+        status: "Processing",
+        items: cartItems.map(item => ({
+          id: item.id,
+          title: item.title,
+          author: item.author,
+          price: item.price,
+          quantity: item.quantity,
+          imageUrl: item.imageUrl
+        })),
+        shippingAddress: shippingData!,
+        paymentMethod: values.paymentMethod || "credit-card",
+        shippingMethod: shippingMethod,
+        subtotal: getTotalPrice(),
+        shipping: getShippingCost(),
+        total: getTotalPrice() + getShippingCost()
+      };
+
+      // Save order data
+      setCurrentOrder(orderData);
+      addToOrderHistory(orderData);
+      
       toast.success("Payment successful! Your order has been placed.");
       clearCart();
       navigate("/order-confirmation");

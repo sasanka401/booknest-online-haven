@@ -1,14 +1,20 @@
-
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { PackageCheck, CheckCircle, IndianRupee } from "lucide-react";
+import { useOrder } from "@/context/OrderContext";
 
 const OrderConfirmation = () => {
-  // Generate a random order number
-  const orderNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, "0");
-  
+  const navigate = useNavigate();
+  const { currentOrder } = useOrder();
+
+  // If there's no current order, redirect to home
+  if (!currentOrder) {
+    navigate('/');
+    return null;
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -24,7 +30,7 @@ const OrderConfirmation = () => {
           
           <div className="bg-gray-50 border border-gray-200 rounded-md p-6 mb-8">
             <p className="text-gray-600 mb-2">Order Number</p>
-            <p className="text-2xl font-semibold">{orderNumber}</p>
+            <p className="text-2xl font-semibold">{currentOrder.orderNumber}</p>
           </div>
           
           <p className="mb-2 text-gray-600">
@@ -39,8 +45,12 @@ const OrderConfirmation = () => {
               <Link to="/">Continue Shopping</Link>
             </Button>
             
-            <Button variant="outline" asChild className="w-full">
-              <Link to={`/order/${orderNumber}`}>View Order</Link>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => navigate(`/order/${currentOrder.orderNumber}`)}
+            >
+              View Order Details
             </Button>
           </div>
         </div>

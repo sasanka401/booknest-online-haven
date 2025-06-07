@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
@@ -60,6 +59,26 @@ const Header = () => {
             </NavigationMenuItem>
             
             <NavigationMenuItem>
+              <NavigationMenuTrigger className="px-4 py-2">Category</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <div className="bg-white rounded-md shadow-lg p-2 min-w-[200px]">
+                  <ul className="space-y-1">
+                    <li><Link to="/category/romance" className="block px-4 py-2 hover:bg-gray-100 rounded">Romance</Link></li>
+                    <li><Link to="/category/fantasy" className="block px-4 py-2 hover:bg-gray-100 rounded">Fantasy</Link></li>
+                    <li><Link to="/category/science-fiction" className="block px-4 py-2 hover:bg-gray-100 rounded">Science Fiction</Link></li>
+                    <li><Link to="/category/paranormal" className="block px-4 py-2 hover:bg-gray-100 rounded">Paranormal</Link></li>
+                    <li><Link to="/category/mystery" className="block px-4 py-2 hover:bg-gray-100 rounded">Mystery</Link></li>
+                    <li><Link to="/category/horror" className="block px-4 py-2 hover:bg-gray-100 rounded">Horror</Link></li>
+                    <li><Link to="/category/thriller-suspense" className="block px-4 py-2 hover:bg-gray-100 rounded">Thriller/Suspense</Link></li>
+                    <li><Link to="/category/action-adventure" className="block px-4 py-2 hover:bg-gray-100 rounded">Action Adventure</Link></li>
+                    <li><Link to="/category/historical-fiction" className="block px-4 py-2 hover:bg-gray-100 rounded">Historical Fiction</Link></li>
+                    <li><Link to="/category/contemporary-fiction" className="block px-4 py-2 hover:bg-gray-100 rounded">Contemporary Fiction</Link></li>
+                  </ul>
+                </div>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+            
+            <NavigationMenuItem>
               <Link to="/resell" className={cn("px-4 py-2 flex items-center", location.pathname === "/resell" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
                 <Package size={18} className="mr-1" />
                 Resell Books
@@ -70,6 +89,19 @@ const Header = () => {
               <Link to="/nearby-bookstores" className={cn("px-4 py-2 flex items-center", location.pathname === "/nearby-bookstores" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
                 <MapPin size={18} className="mr-1" />
                 Nearby Stores
+              </Link>
+            </NavigationMenuItem>
+            
+            <NavigationMenuItem>
+              <Link 
+                to="/order-history" 
+                className={cn(
+                  "px-4 py-2 flex items-center",
+                  location.pathname === "/order-history" ? "text-primary font-medium" : "text-gray-600 hover:text-primary"
+                )}
+              >
+                <Package size={18} className="mr-1" />
+                Order History
               </Link>
             </NavigationMenuItem>
           </NavigationMenuList>

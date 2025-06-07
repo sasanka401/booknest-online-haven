@@ -1,4 +1,3 @@
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -152,9 +151,9 @@ const ResellBooks = () => {
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price ($)</FormLabel>
+                        <FormLabel>Price (₹)</FormLabel>
                         <FormControl>
-                          <Input type="text" placeholder="0.00" {...field} />
+                          <Input type="text" placeholder="0" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
