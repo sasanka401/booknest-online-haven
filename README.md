@@ -5,7 +5,6 @@
 **URL**: https://lovable.dev/projects/0b3e5c57-3373-4429-b866-d219197cca34
 
 
-
 Follow these steps:
 
 ```sh
@@ -50,10 +49,4 @@ This project is built with:
 
 Simply open [Lovable](https://lovable.dev/projects/0b3e5c57-3373-4429-b866-d219197cca34) and click on Share -> Publish.
 
-## Can I connect a custom domain to my Lovable project?
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)

@@ -1,4 +1,4 @@
-
+// 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -18,49 +18,65 @@ import { toast } from "sonner";
 const mockBookstores = [
   {
     id: 1,
-    name: "City Lights Bookstore",
-    address: "123 Book Street, San Francisco, CA 94133",
-    distance: 0.8,
-    phone: "(415) 555-1234",
+    name: "Assam Book House",
+    address: "C. K. Hazarika Path, sonari patty, New Market, Dibrugarh, Assam 786001",
+    distance: 4.4,
+    phone: "(+91) 9435702060",
     hours: "9:00 AM - 9:00 PM",
-    rating: 4.7,
+    rating: 3.8,
+    mapsUrl: "https://maps.app.goo.gl/qRc19P24xw9TR45Y7"
   },
   {
     id: 2,
-    name: "BookHaven",
-    address: "456 Reader Avenue, San Francisco, CA 94109",
+    name: "BANALATA DIBRUGARH",
+    address: "New Market C, K HAZARIKA PATH, Dibrugarh, Assam 786001",
     distance: 1.2,
-    phone: "(415) 555-5678",
+    phone: "(+91) 8723043073",
     hours: "10:00 AM - 8:00 PM",
-    rating: 4.5,
+    rating: 4.1,
+    mapsUrl: "https://maps.app.goo.gl/HB1wjCbaquZJxSNJA"
   },
   {
     id: 3,
-    name: "The Reading Corner",
-    address: "789 Literary Lane, San Francisco, CA 94102",
+    name: "Students Emporium",
+    address: "New Market, Dibrugarh, Assam 786001",
     distance: 2.1,
-    phone: "(415) 555-9012",
+    phone: "(+91) 3732322699",
     hours: "8:00 AM - 10:00 PM",
-    rating: 4.8,
+    rating: 3.9,
+    mapsUrl: "https://maps.app.goo.gl/MZHZNNr3quL4kVnA7"
   },
   {
     id: 4,
-    name: "Page Turner Books",
-    address: "101 Novel Road, San Francisco, CA 94117",
+    name: "Sriram Book Stall",
+    address: "Shantipara, P N Rd, Dibrugarh, Assam 786001",
     distance: 2.8,
-    phone: "(415) 555-3456",
+    phone: "(+91) 9954952313",
     hours: "9:00 AM - 7:00 PM",
-    rating: 4.3,
+    rating: 4.1,
+    mapsUrl: "https://maps.app.goo.gl/xVL1YqYJBdeh4FJy6"
   },
   {
     id: 5,
-    name: "Bookworm Paradise",
-    address: "202 Story Street, San Francisco, CA 94110",
-    distance: 3.5,
-    phone: "(415) 555-7890",
+    name: "Rainbow Book Store",
+    address: "FVHW+VM6, Dibrugarh, Assam 786001",
+    distance: 4.5,
+    phone: "(+91) 9435734060",  
     hours: "10:00 AM - 9:00 PM",
     rating: 4.6,
+    mapsUrl: "https://maps.app.goo.gl/qw1u3a1cExpWz6cg9"
   },
+  {
+    id: 6,
+    name: "KANGAN STATIONARY STORE",
+    address: "near Bihari Hotel, New Market, Dibrugarh, Assam 786001",
+    distance: 3.5,
+    phone: "(+91) 09401106920",
+    hours: "10:00 AM - 9:00 PM",
+    rating: 4.6,
+    mapsUrl: "https://maps.app.goo.gl/uYKvz4Y14jKkFpxs8"
+  },
+
 ];
 
 const NearbyBookstores = () => {
@@ -205,7 +221,7 @@ const NearbyBookstores = () => {
                           <div className="text-sm text-muted-foreground md:hidden">{bookstore.phone}</div>
                         </div>
                       </TableCell>
-                      <TableCell>{bookstore.distance.toFixed(1)} miles</TableCell>
+                      <TableCell>{bookstore.distance.toFixed(1)} km</TableCell>
                       <TableCell className="hidden md:table-cell">{bookstore.hours}</TableCell>
                       <TableCell className="hidden md:table-cell">
                         {renderStars(bookstore.rating)}
@@ -215,7 +231,13 @@ const NearbyBookstores = () => {
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(bookstore.address)}`, '_blank')}
+                            onClick={() => {
+                              if (bookstore.mapsUrl) {
+                                window.open(bookstore.mapsUrl, '_blank');
+                              } else {
+                                window.open(`https://maps.google.com/?q=${encodeURIComponent(bookstore.address)}`, '_blank');
+                              }
+                            }}
                           >
                             <MapPin className="h-4 w-4 mr-1" />
                             Directions
