@@ -29,12 +29,32 @@ const Header = () => {
   const { getWishlistCount } = useWishlist();
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<Notification[]>([
     { id: 1, text: 'New book "The Midnight Library" is now available!', time: "2 hours ago", unread: true },
     { id: 2, text: "Your order #12345 has been shipped", time: "1 day ago", unread: true },
     { id: 3, text: "Special offer: 20% off on all fiction books", time: "3 days ago", unread: false }
   ]);
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+    let stopped = false;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (!stopped) setIsAdmin(data?.role === "admin");
+      });
+    return () => {
+      stopped = true;
+    };
+  }, [user]);
 
   const markAllAsRead = () => {
     const updatedNotifications = notifications.map(notification => ({
@@ -211,6 +231,16 @@ const Header = () => {
                       <span className="text-xs text-gray-500">{user.email}</span>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/dashboard" className="flex items-center gap-2 cursor-pointer">
+                            <UserRound size={16} /> Admin Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuItem
                       onClick={logout}
                       className="flex items-center gap-2 text-red-500 cursor-pointer"

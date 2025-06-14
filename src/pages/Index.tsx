@@ -13,6 +13,7 @@ import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { ShoppingCart, Heart, IndianRupee } from "lucide-react";
+import AdminDashboard from "@/pages/AdminDashboard";
 
 // Book data type
 interface Book {
