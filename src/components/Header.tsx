@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { ShoppingCart, MapPin, Package, Bell, Heart, UserRound } from "lucide-react";
+import { ShoppingCart, MapPin, Package, Bell, Heart, UserRound, LogOut } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,6 +11,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 
@@ -33,7 +33,7 @@ const Header = () => {
     { id: 2, text: "Your order #12345 has been shipped", time: "1 day ago", unread: true },
     { id: 3, text: "Special offer: 20% off on all fiction books", time: "3 days ago", unread: false }
   ]);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const markAllAsRead = () => {
     const updatedNotifications = notifications.map(notification => ({
@@ -190,18 +190,34 @@ const Header = () => {
               )}
             </li>
 
-            {/* If the user is logged in, show account icon, else Login/Signup */}
+            {/* If the user is logged in, show account icon with dropdown */}
             {user ? (
               <li className="relative flex items-center ml-4">
-                <Link
-                  to="/profile"
-                  className="flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors p-2 group"
-                  title="Account"
-                >
-                  <UserRound size={24} className="text-primary group-hover:text-primary/80" />
-                  {/* Optionally, display user's name */}
-                  {/* <span className="ml-2 text-sm font-medium">{user.user_metadata?.name || "Account"}</span> */}
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors p-2 group focus:outline-none"
+                      title="Account"
+                    >
+                      <UserRound size={24} className="text-primary group-hover:text-primary/80" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64 mt-2" align="end">
+                    <DropdownMenuLabel className="flex flex-col pb-1 mb-1 border-b border-muted">
+                      <span className="font-bold text-base">
+                        {user.user_metadata?.name || "User"}
+                      </span>
+                      <span className="text-xs text-gray-500">{user.email}</span>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={logout}
+                      className="flex items-center gap-2 text-red-500 cursor-pointer"
+                    >
+                      <LogOut size={16} /> Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </li>
             ) : (
               <>
@@ -219,4 +235,3 @@ const Header = () => {
 };
 
 export default Header;
-
