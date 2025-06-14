@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "sonner";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -42,17 +43,19 @@ function AdminRoute({ children }: { children: JSX.Element }) {
       return;
     }
     let stopped = false;
-    import("@/integrations/supabase/client").then(({ supabase }) => {
-      supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .single()
-        .then(({ data }) => {
-          if (!stopped) setIsAdmin(data?.role === "admin");
-        })
-        .catch(() => setIsAdmin(false));
-    });
+    (async () => {
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .single();
+        if (!stopped) setIsAdmin(data?.role === "admin");
+      } catch (e) {
+        setIsAdmin(false);
+      }
+    })();
     return () => {
       stopped = true;
     };
