@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
@@ -43,12 +44,19 @@ const Header = () => {
       return;
     }
     let stopped = false;
+    // DEBUG: Log the current user being checked for admin role
+    console.log("Header: Checking admin status for user:", user?.id, user?.email);
     supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .single()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          console.log("Header: Error fetching user_roles:", error);
+        } else {
+          console.log("Header: user_roles data for this user:", data);
+        }
         if (!stopped) setIsAdmin(data?.role === "admin");
       });
     return () => {
@@ -272,8 +280,6 @@ const Header = () => {
   );
 };
 
-export default Header;
-
 /** Show Admin link if user is admin */
 function AdminLink() {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -287,12 +293,19 @@ function AdminLink() {
       return;
     }
     let stopped = false;
+    // DEBUG: Log the current user being checked for AdminLink
+    console.log("AdminLink: Checking admin status for user:", user?.id, user?.email);
     supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .single()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          console.log("AdminLink: Error fetching user_roles:", error);
+        } else {
+          console.log("AdminLink: user_roles data for this user:", data);
+        }
         if (!stopped) setIsAdmin(data?.role === "admin");
         setLoading(false);
       });
@@ -310,3 +323,5 @@ function AdminLink() {
     </Link>
   );
 }
+
+export default Header;
