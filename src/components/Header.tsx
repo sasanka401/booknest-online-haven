@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
@@ -274,11 +273,10 @@ function AdminLink() {
   if (loading || !isAdmin) return null;
   return (
     <Link
-      to="/admin/books"
+      to="/admin/dashboard"
       className="px-4 py-2 text-primary hover:underline rounded bg-primary/10"
     >
       Admin
     </Link>
   );
 }
-
