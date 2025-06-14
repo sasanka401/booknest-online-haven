@@ -9,7 +9,111 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      books: {
+        Row: {
+          author: string
+          id: number
+          image_url: string | null
+          price: number
+          rating: number | null
+          title: string
+        }
+        Insert: {
+          author: string
+          id?: number
+          image_url?: string | null
+          price: number
+          rating?: number | null
+          title: string
+        }
+        Update: {
+          author?: string
+          id?: number
+          image_url?: string | null
+          price?: number
+          rating?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          book_id: number | null
+          id: number
+          order_id: number | null
+          price: number
+          quantity: number
+        }
+        Insert: {
+          book_id?: number | null
+          id?: number
+          order_id?: number | null
+          price: number
+          quantity: number
+        }
+        Update: {
+          book_id?: number | null
+          id?: number
+          order_id?: number | null
+          price?: number
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          id: number
+          order_date: string
+          order_number: string
+          payment_method: string
+          shipping: number
+          shipping_address: Json
+          shipping_method: string
+          status: string
+          subtotal: number
+          total: number
+        }
+        Insert: {
+          id?: number
+          order_date?: string
+          order_number: string
+          payment_method: string
+          shipping: number
+          shipping_address: Json
+          shipping_method: string
+          status?: string
+          subtotal: number
+          total: number
+        }
+        Update: {
+          id?: number
+          order_date?: string
+          order_number?: string
+          payment_method?: string
+          shipping?: number
+          shipping_address?: Json
+          shipping_method?: string
+          status?: string
+          subtotal?: number
+          total?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
