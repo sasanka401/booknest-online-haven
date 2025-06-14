@@ -97,7 +97,7 @@ function App() {
                   </PrivateRoute>
                 } />
                 <Route path="/login" element={<Navigate to="/auth" />} />
-                <Route path="/signup" element={<Navigate to="/auth" />} />
+                <Route path="/signup" element={<Signup />} />
                 <Route path="/order-confirmation" element={
                   <PrivateRoute>
                     <OrderConfirmation />

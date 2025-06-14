@@ -20,12 +20,6 @@ const Auth = () => {
   useEffect(() => {
     // When login happened (user became non-null)
     if (user && !prevUser && typeof loginTimer === "number") {
-      const duration = (performance.now() - loginTimer) / 1000;
-      if (duration <= 2) {
-        toast.success(`Login time: ${duration.toFixed(2)}s (under 2 seconds 🚀)`);
-      } else {
-        toast.warning(`Login time: ${duration.toFixed(2)}s (over 2 seconds)`);
-      }
       setLoginTimer(null);
     }
     setPrevUser(user);

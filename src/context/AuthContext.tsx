@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         ]);
       }
 
-      toast.success("Logged in!");
+      toast.success("Logged in!", { duration: 2000 });
     } catch (e: any) {
       toast.error(e.message || "Login failed");
     } finally {
