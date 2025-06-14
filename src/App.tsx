@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { OrderProvider } from "./context/OrderContext";
+import AdminDashboard from "./pages/AdminDashboard";
 
 // Import pages
 import Index from "./pages/Index";
@@ -30,6 +31,39 @@ function PrivateRoute({ children }: { children: JSX.Element }) {
   return user ? children : <Navigate to="/auth" replace />;
 }
 
+// Admin-only route wrapper (inline)
+function AdminRoute({ children }: { children: JSX.Element }) {
+  const { user, loading } = useAuth();
+  const [isAdmin, setIsAdmin] = React.useState<boolean | null>(null);
+
+  React.useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+    let stopped = false;
+    import("@/integrations/supabase/client").then(({ supabase }) => {
+      supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (!stopped) setIsAdmin(data?.role === "admin");
+        })
+        .catch(() => setIsAdmin(false));
+    });
+    return () => {
+      stopped = true;
+    };
+  }, [user]);
+
+  if (loading || isAdmin === null) {
+    return <div className="flex min-h-screen items-center justify-center">Checking admin permissions...</div>;
+  }
+  return user && isAdmin ? children : <Navigate to="/" replace />;
+}
+
 function App() {
   return (
     <Router>
@@ -44,6 +78,12 @@ function App() {
                   <PrivateRoute>
                     <Profile />
                   </PrivateRoute>
+                } />
+                {/* --- Add admin dashboard protected route here --- */}
+                <Route path="/admin/dashboard" element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
                 } />
                 {/* Protect routes as needed */}
                 <Route path="/" element={<Index />} />
