@@ -1,9 +1,9 @@
 
+import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useProfile, useUpdateProfile } from "@/hooks/useProfile";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
