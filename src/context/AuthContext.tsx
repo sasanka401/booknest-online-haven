@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
@@ -72,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     cleanupAuthState();
     try {
       const redirectUrl = `${window.location.origin}/`;
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -81,6 +80,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       });
       if (error) throw error;
+
+      // Ensure a profile row is created for new users after signup
+      // Only attempt this if a new user has been created
+      const userId = data?.user?.id;
+      if (userId) {
+        // Insert or update profile for this user
+        // Try inserting; if it already exists (rare race), ignore error
+        await supabase.from("profiles").upsert([
+          { id: userId, name }
+        ]);
+      }
+
       toast.success("Signup successful! Please check your inbox.");
     } catch (e: any) {
       toast.error(e.message || "Signup failed");
