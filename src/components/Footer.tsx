@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="container">
         <div className="footer-content">
           <div className="footer-section">
-            <h3>About BookNest</h3>
+            <h3>About GyanVidya</h3>
             <p>Your one-stop destination for all your reading needs. Discover millions of books across various genres.</p>
           </div>
           <div className="footer-section">
@@ -28,7 +28,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} BookNest. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} GyanVidya. All rights reserved.</p>
         </div>
       </div>
     </footer>
@@ -36,3 +36,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

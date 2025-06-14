@@ -47,7 +47,7 @@ const Header = () => {
     <header className="site-header">
       <div className="container header-container">
         <Link to="/" className="no-underline">
-          <h1 className="logo">BookNest</h1>
+          <h1 className="logo">GyanVidya</h1>
         </Link>
         
         <NavigationMenu className="hidden md:flex">
