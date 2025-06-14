@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,20 +61,20 @@ const AdminBooks = () => {
   const addBookMutation = useMutation({
     mutationFn: addBook,
     onSuccess: () => {
-      toast.success("Book added!");
+      toast({ title: "Book added!" });
       queryClient.invalidateQueries({ queryKey: ["books-admin"] });
       setForm({ title: "", author: "", price: "", image_url: "", rating: "" });
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: (err: any) => toast({ title: err.message, variant: "destructive" }),
   });
 
   const deleteBookMutation = useMutation({
     mutationFn: deleteBook,
     onSuccess: () => {
-      toast.success("Book deleted");
+      toast({ title: "Book deleted" });
       queryClient.invalidateQueries({ queryKey: ["books-admin"] });
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: (err: any) => toast({ title: err.message, variant: "destructive" }),
   });
 
   if (isAdmin === null) {

@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -14,7 +15,6 @@ import {
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Notification {
@@ -245,10 +245,6 @@ const Header = () => {
 
 export default Header;
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
-
 /** Show Admin link if user is admin */
 function AdminLink() {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -285,3 +281,4 @@ function AdminLink() {
     </Link>
   );
 }
+
