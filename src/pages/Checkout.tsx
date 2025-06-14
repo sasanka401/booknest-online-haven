@@ -66,7 +66,15 @@ const CheckoutPage = () => {
           quantity: item.quantity,
           imageUrl: item.imageUrl
         })),
-        shippingAddress: shippingData!,
+        shippingAddress: {
+          fullName: shippingData!.fullName,
+          address: shippingData!.address,
+          city: shippingData!.city,
+          state: shippingData!.state,
+          pinCode: shippingData!.pinCode,
+          phone: shippingData!.phoneNumber,
+          email: shippingData!.email
+        },
         paymentMethod: values.paymentMethod || "credit-card",
         shippingMethod: shippingMethod,
         subtotal: getTotalPrice(),
