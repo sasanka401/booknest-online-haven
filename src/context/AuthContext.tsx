@@ -50,13 +50,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Login method
+  // Login method (updated: upsert profile after login)
   const login = async (email: string, password: string) => {
     setLoading(true);
     cleanupAuthState();
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+
+      // Upsert profile after login
+      const userId = data?.user?.id;
+      const name =
+        data?.user?.user_metadata?.name ||
+        data?.user?.user_metadata?.full_name ||
+        null;
+      if (userId) {
+        await supabase.from("profiles").upsert([
+          { id: userId, name }
+        ]);
+      }
+
       toast.success("Logged in!");
     } catch (e: any) {
       toast.error(e.message || "Login failed");
@@ -82,11 +95,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error;
 
       // Ensure a profile row is created for new users after signup
-      // Only attempt this if a new user has been created
       const userId = data?.user?.id;
       if (userId) {
-        // Insert or update profile for this user
-        // Try inserting; if it already exists (rare race), ignore error
         await supabase.from("profiles").upsert([
           { id: userId, name }
         ]);
