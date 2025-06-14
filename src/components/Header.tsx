@@ -14,6 +14,8 @@ import {
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Notification {
   id: number;
@@ -226,6 +228,13 @@ const Header = () => {
               </>
             )}
 
+            {/* Admin-only link; hidden if not admin */}
+            {user && (
+              <li className="ml-4">
+                <AdminLink />
+              </li>
+            )}
+
             {/* Mobile menu icon would go here for responsive design */}
           </ul>
         </nav>
@@ -235,3 +244,44 @@ const Header = () => {
 };
 
 export default Header;
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
+
+/** Show Admin link if user is admin */
+function AdminLink() {
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      setLoading(false);
+      return;
+    }
+    let stopped = false;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (!stopped) setIsAdmin(data?.role === "admin");
+        setLoading(false);
+      });
+    return () => {
+      stopped = true;
+    };
+  }, [user]);
+  if (loading || !isAdmin) return null;
+  return (
+    <Link
+      to="/admin/books"
+      className="px-4 py-2 text-primary hover:underline rounded bg-primary/10"
+    >
+      Admin
+    </Link>
+  );
+}
