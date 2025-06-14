@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { ShoppingCart, MapPin, Package, Bell, Heart } from "lucide-react";
+import { ShoppingCart, MapPin, Package, Bell, Heart, UserRound } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,6 +13,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 interface Notification {
   id: number;
@@ -27,17 +29,18 @@ const Header = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
   const [notifications, setNotifications] = useState<Notification[]>([
-    { id: 1, text: "New book \"The Midnight Library\" is now available!", time: "2 hours ago", unread: true },
+    { id: 1, text: 'New book "The Midnight Library" is now available!', time: "2 hours ago", unread: true },
     { id: 2, text: "Your order #12345 has been shipped", time: "1 day ago", unread: true },
     { id: 3, text: "Special offer: 20% off on all fiction books", time: "3 days ago", unread: false }
   ]);
+  const { user } = useAuth();
 
   const markAllAsRead = () => {
     const updatedNotifications = notifications.map(notification => ({
       ...notification,
       unread: false
     }));
-    
+
     setNotifications(updatedNotifications);
     setUnreadCount(0);
     setShowNotifications(false);
@@ -49,7 +52,7 @@ const Header = () => {
         <Link to="/" className="no-underline">
           <h1 className="logo">GyanVidya</h1>
         </Link>
-        
+
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList>
             <NavigationMenuItem>
@@ -57,7 +60,7 @@ const Header = () => {
                 Home
               </Link>
             </NavigationMenuItem>
-            
+
             <NavigationMenuItem>
               <NavigationMenuTrigger className="px-4 py-2">Category</NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -77,21 +80,21 @@ const Header = () => {
                 </div>
               </NavigationMenuContent>
             </NavigationMenuItem>
-            
+
             <NavigationMenuItem>
               <Link to="/resell" className={cn("px-4 py-2 flex items-center", location.pathname === "/resell" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
                 <Package size={18} className="mr-1" />
                 Resell Books
               </Link>
             </NavigationMenuItem>
-            
+
             <NavigationMenuItem>
               <Link to="/nearby-bookstores" className={cn("px-4 py-2 flex items-center", location.pathname === "/nearby-bookstores" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
                 <MapPin size={18} className="mr-1" />
                 Nearby Stores
               </Link>
             </NavigationMenuItem>
-            
+
             <NavigationMenuItem>
               <Link 
                 to="/order-history" 
@@ -106,7 +109,7 @@ const Header = () => {
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
-        
+
         <nav>
           <ul className="nav-links">
             <li className="hidden md:block">
@@ -120,7 +123,7 @@ const Header = () => {
                 )}
               </Link>
             </li>
-            
+
             <li className="hidden md:block">
               <Link to="/wishlist" className={cn("relative flex items-center ml-4", location.pathname === "/wishlist" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
                 <Heart className="mr-1" size={18} />
@@ -132,7 +135,7 @@ const Header = () => {
                 )}
               </Link>
             </li>
-            
+
             <li className="notification-container relative">
               <button 
                 className="notification-btn flex items-center"
@@ -148,7 +151,7 @@ const Header = () => {
                   </span>
                 )}
               </button>
-              
+
               {showNotifications && (
                 <div className="notification-dropdown absolute right-0 top-10 bg-white rounded-md shadow-lg border border-gray-200 w-80 z-50">
                   <div className="notification-header flex justify-between items-center p-3 border-b">
@@ -160,7 +163,7 @@ const Header = () => {
                       Mark all as read
                     </button>
                   </div>
-                  
+
                   <div className="notification-list max-h-80 overflow-y-auto">
                     {notifications.map((notification) => (
                       <div 
@@ -177,7 +180,7 @@ const Header = () => {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="notification-footer p-2 text-center border-t">
                     <a href="#" className="text-sm text-primary hover:text-primary/80">
                       View all notifications
@@ -186,10 +189,27 @@ const Header = () => {
                 </div>
               )}
             </li>
-            
-            <li><Link to="/login" className="btn-login">Login</Link></li>
-            <li><Link to="/signup" className="btn-signup">Sign Up</Link></li>
-            
+
+            {/* If the user is logged in, show account icon, else Login/Signup */}
+            {user ? (
+              <li className="relative flex items-center ml-4">
+                <Link
+                  to="/profile"
+                  className="flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors p-2 group"
+                  title="Account"
+                >
+                  <UserRound size={24} className="text-primary group-hover:text-primary/80" />
+                  {/* Optionally, display user's name */}
+                  {/* <span className="ml-2 text-sm font-medium">{user.user_metadata?.name || "Account"}</span> */}
+                </Link>
+              </li>
+            ) : (
+              <>
+                <li><Link to="/login" className="btn-login">Login</Link></li>
+                <li><Link to="/signup" className="btn-signup">Sign Up</Link></li>
+              </>
+            )}
+
             {/* Mobile menu icon would go here for responsive design */}
           </ul>
         </nav>
@@ -199,3 +219,4 @@ const Header = () => {
 };
 
 export default Header;
+
