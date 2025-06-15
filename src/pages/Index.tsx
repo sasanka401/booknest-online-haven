@@ -129,14 +129,24 @@ const Index = () => {
   };
 
   const handleAddToCart = (book: Book) => {
-    addToCart(book);
+    // Transform the book to match cart context expectations
+    const cartBook = {
+      ...book,
+      imageUrl: book.image_url || "/placeholder.svg"
+    };
+    addToCart(cartBook);
   };
 
   const handleToggleWishlist = (book: Book) => {
     if (isInWishlist(book.id)) {
       removeFromWishlist(book.id);
     } else {
-      addToWishlist(book);
+      // Transform the book to match wishlist context expectations
+      const wishlistBook = {
+        ...book,
+        imageUrl: book.image_url || "/placeholder.svg"
+      };
+      addToWishlist(wishlistBook);
     }
   };
 
