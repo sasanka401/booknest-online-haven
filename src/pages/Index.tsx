@@ -16,7 +16,7 @@ import { ShoppingCart, Heart, IndianRupee } from "lucide-react";
 import AdminDashboard from "@/pages/AdminDashboard";
 import { useBooks } from "@/integrations/supabase/useBooks";
 
-// Book data type
+// Book data type -- use snake_case to match Supabase and how it's used in the file
 interface Book {
   id: number;
   title: string;
