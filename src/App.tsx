@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "sonner";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -50,7 +51,7 @@ function AdminRoute({ children }: { children: JSX.Element }) {
           .from("user_roles")
           .select("role")
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle(); // changed from .single() to .maybeSingle()
         if (!stopped) setIsAdmin(data?.role === "admin");
       } catch (e) {
         setIsAdmin(false);
