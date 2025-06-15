@@ -14,6 +14,7 @@ export type Database = {
           author: string
           id: number
           image_url: string | null
+          language: string | null
           price: number
           rating: number | null
           title: string
@@ -22,6 +23,7 @@ export type Database = {
           author: string
           id?: number
           image_url?: string | null
+          language?: string | null
           price: number
           rating?: number | null
           title: string
@@ -30,6 +32,7 @@ export type Database = {
           author?: string
           id?: number
           image_url?: string | null
+          language?: string | null
           price?: number
           rating?: number | null
           title?: string
