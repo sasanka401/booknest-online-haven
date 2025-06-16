@@ -96,11 +96,11 @@ const CheckoutPage = () => {
   const getShippingCost = () => {
     switch (shippingMethod) {
       case "express":
-        return 1199;
+        return 49;
       case "next-day":
-        return 1999;
+        return 99;
       default:
-        return 399;
+        return 0;
     }
   };
 

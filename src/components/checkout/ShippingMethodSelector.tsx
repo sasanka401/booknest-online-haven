@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Truck, Package } from "lucide-react";
 import { IndianRupee } from "lucide-react";
@@ -30,7 +29,7 @@ const ShippingMethodSelector: React.FC<ShippingMethodSelectorProps> = ({
               <Truck size={18} className="mr-2" />
               <span className="font-medium">Standard</span>
             </div>
-            <span className="text-sm font-semibold flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />399</span>
+            <span className="text-sm font-semibold flex items-center">Free</span>
           </div>
           <p className="text-sm text-gray-500">Delivery in 3-5 business days</p>
         </div>
@@ -48,7 +47,7 @@ const ShippingMethodSelector: React.FC<ShippingMethodSelectorProps> = ({
               <Package size={18} className="mr-2" />
               <span className="font-medium">Express</span>
             </div>
-            <span className="text-sm font-semibold flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />1199</span>
+            <span className="text-sm font-semibold flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />49</span>
           </div>
           <p className="text-sm text-gray-500">Delivery in 1-2 business days</p>
         </div>
@@ -66,7 +65,7 @@ const ShippingMethodSelector: React.FC<ShippingMethodSelectorProps> = ({
               <Truck size={18} className="mr-2" />
               <span className="font-medium">Next Day</span>
             </div>
-            <span className="text-sm font-semibold flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />1999</span>
+            <span className="text-sm font-semibold flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />99</span>
           </div>
           <p className="text-sm text-gray-500">Delivered by tomorrow</p>
         </div>
