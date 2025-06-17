@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
@@ -8,6 +9,7 @@ interface AuthContextValue {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -33,10 +35,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check admin status whenever user changes
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+    
+    let stopped = false;
+    console.log("AuthContext: Checking admin status for user:", user?.id, user?.email);
+    
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          console.log("AuthContext: Error fetching user_roles:", error);
+          if (!stopped) setIsAdmin(false);
+        } else {
+          console.log("AuthContext: user_roles data for this user:", data);
+          if (!stopped) {
+            const adminStatus = data?.role === "admin";
+            setIsAdmin(adminStatus);
+            
+            // If user is admin and just logged in, redirect to admin dashboard
+            if (adminStatus && window.location.pathname === "/") {
+              console.log("AuthContext: Redirecting admin to dashboard");
+              window.location.href = "/admin/dashboard";
+            }
+          }
+        }
+      });
+      
+    return () => {
+      stopped = true;
+    };
+  }, [user]);
 
   useEffect(() => {
     // Listen to auth state
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("AuthContext: Auth state change:", event, session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
     });
@@ -118,6 +161,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await supabase.auth.signOut({ scope: "global" });
       setUser(null);
       setSession(null);
+      setIsAdmin(false);
       toast("Logged out");
       window.location.href = "/auth";
     } catch (e: any) {
@@ -128,7 +172,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

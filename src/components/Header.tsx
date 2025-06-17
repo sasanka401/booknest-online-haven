@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
@@ -15,7 +14,6 @@ import {
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 
 interface Notification {
   id: number;
@@ -30,39 +28,12 @@ const Header = () => {
   const { getWishlistCount } = useWishlist();
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<Notification[]>([
     { id: 1, text: 'New book "The Midnight Library" is now available!', time: "2 hours ago", unread: true },
     { id: 2, text: "Your order #12345 has been shipped", time: "1 day ago", unread: true },
     { id: 3, text: "Special offer: 20% off on all fiction books", time: "3 days ago", unread: false }
   ]);
-  const { user, logout } = useAuth();
-
-  useEffect(() => {
-    if (!user) {
-      setIsAdmin(false);
-      return;
-    }
-    let stopped = false;
-    // DEBUG: Log the current user being checked for admin role
-    console.log("Header: Checking admin status for user:", user?.id, user?.email);
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data, error }) => {
-        if (error) {
-          console.log("Header: Error fetching user_roles:", error);
-        } else {
-          console.log("Header: user_roles data for this user:", data);
-        }
-        if (!stopped) setIsAdmin(data?.role === "admin");
-      });
-    return () => {
-      stopped = true;
-    };
-  }, [user]);
+  const { user, logout, isAdmin } = useAuth();
 
   const markAllAsRead = () => {
     const updatedNotifications = notifications.map(notification => ({
@@ -137,63 +108,53 @@ const Header = () => {
               </Link>
             </NavigationMenuItem>
 
-            {/* Admin Menu */}
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="px-4 py-2 text-orange-600 font-medium">
-                <Settings size={18} className="mr-1" />
-                Admin
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="bg-white rounded-md shadow-lg p-2 min-w-[250px]">
-                  <ul className="space-y-1">
-                    {!user ? (
-                      <>
-                        <li>
-                          <Link to="/auth" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded text-blue-600">
-                            <UserRound size={16} className="mr-2" />
-                            Admin Login
-                          </Link>
+            {/* Admin Menu - Only show if user is logged in */}
+            {user && (
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="px-4 py-2 text-orange-600 font-medium">
+                  <Settings size={18} className="mr-1" />
+                  Admin
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="bg-white rounded-md shadow-lg p-2 min-w-[250px]">
+                    <ul className="space-y-1">
+                      {isAdmin ? (
+                        <>
+                          <li>
+                            <Link to="/admin/dashboard" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded text-green-600">
+                              <Settings size={16} className="mr-2" />
+                              Dashboard
+                            </Link>
+                          </li>
+                          <li>
+                            <Link to="/admin/books" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
+                              <BookOpen size={16} className="mr-2" />
+                              Manage Books
+                            </Link>
+                          </li>
+                          <li>
+                            <Link to="/order-history" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
+                              <Package size={16} className="mr-2" />
+                              Manage Orders
+                            </Link>
+                          </li>
+                          <li>
+                            <Link to="/admin/users" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
+                              <Users size={16} className="mr-2" />
+                              Manage Users
+                            </Link>
+                          </li>
+                        </>
+                      ) : (
+                        <li className="px-4 py-2 text-sm text-red-500">
+                          Admin access denied
                         </li>
-                        <li className="px-4 py-2 text-sm text-gray-500">
-                          Login required for admin access
-                        </li>
-                      </>
-                    ) : isAdmin ? (
-                      <>
-                        <li>
-                          <Link to="/admin/dashboard" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded text-green-600">
-                            <Settings size={16} className="mr-2" />
-                            Dashboard
-                          </Link>
-                        </li>
-                        <li>
-                          <Link to="/admin/books" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                            <BookOpen size={16} className="mr-2" />
-                            Manage Books
-                          </Link>
-                        </li>
-                        <li>
-                          <Link to="/order-history" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                            <Package size={16} className="mr-2" />
-                            Manage Orders
-                          </Link>
-                        </li>
-                        <li>
-                          <Link to="/admin/users" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                            <Users size={16} className="mr-2" />
-                            Manage Users
-                          </Link>
-                        </li>
-                      </>
-                    ) : (
-                      <li className="px-4 py-2 text-sm text-red-500">
-                        Admin access denied
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
+                      )}
+                    </ul>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
 
@@ -295,13 +256,16 @@ const Header = () => {
                         {user.user_metadata?.name || "User"}
                       </span>
                       <span className="text-xs text-gray-500">{user.email}</span>
+                      {isAdmin && (
+                        <span className="text-xs text-orange-600 font-medium">Admin</span>
+                      )}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {isAdmin && (
                       <>
                         <DropdownMenuItem asChild>
                           <Link to="/admin/dashboard" className="flex items-center gap-2 cursor-pointer">
-                            <UserRound size={16} /> Admin Dashboard
+                            <Settings size={16} /> Admin Dashboard
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
@@ -323,63 +287,12 @@ const Header = () => {
               </>
             )}
 
-            {/* Admin-only link; hidden if not admin */}
-            {user && (
-              <li className="ml-4">
-                <AdminLink />
-              </li>
-            )}
-
-            {/* Mobile menu icon would go here for responsive design */}
+            {/* Remove the old AdminLink component since we're handling it in the dropdown now */}
           </ul>
         </nav>
       </div>
     </header>
   );
 };
-
-/** Show Admin link if user is admin */
-function AdminLink() {
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (!user) {
-      setIsAdmin(false);
-      setLoading(false);
-      return;
-    }
-    let stopped = false;
-    // DEBUG: Log the current user being checked for AdminLink
-    console.log("AdminLink: Checking admin status for user:", user?.id, user?.email);
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data, error }) => {
-        if (error) {
-          console.log("AdminLink: Error fetching user_roles:", error);
-        } else {
-          console.log("AdminLink: user_roles data for this user:", data);
-        }
-        if (!stopped) setIsAdmin(data?.role === "admin");
-        setLoading(false);
-      });
-    return () => {
-      stopped = true;
-    };
-  }, [user]);
-  if (loading || !isAdmin) return null;
-  return (
-    <Link
-      to="/admin/dashboard"
-      className="px-4 py-2 text-primary hover:underline rounded bg-primary/10"
-    >
-      Admin
-    </Link>
-  );
-}
 
 export default Header;
