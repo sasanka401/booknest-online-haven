@@ -1,4 +1,3 @@
-
 import { createContext, useState, useContext, ReactNode } from "react";
 import { toast } from "sonner";
 
@@ -8,7 +7,7 @@ interface Book {
   title: string;
   author: string;
   price: number;
-  imageUrl: string;
+  image_url: string;
   rating: number;
 }
 

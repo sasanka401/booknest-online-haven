@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -15,7 +14,6 @@ import {
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 
 interface Notification {
   id: number;
@@ -43,25 +41,10 @@ const Header = () => {
       setIsAdmin(false);
       return;
     }
-    let stopped = false;
-    // DEBUG: Log the current user being checked for admin role
-    console.log("Header: Checking admin status for user:", user?.id, user?.email);
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data, error }) => {
-        if (error) {
-          console.log("Header: Error fetching user_roles:", error);
-        } else {
-          console.log("Header: user_roles data for this user:", data);
-        }
-        if (!stopped) setIsAdmin(data?.role === "admin");
-      });
-    return () => {
-      stopped = true;
-    };
+    // For mock backend, determine admin status based on mock user ID
+    setIsAdmin(user.id === "mock-admin-id-456");
+
+    // Removed Supabase calls for user_roles here
   }, [user]);
 
   const markAllAsRead = () => {
@@ -76,43 +59,60 @@ const Header = () => {
   };
 
   return (
-    <header className="site-header">
-      <div className="container header-container">
-        <Link to="/" className="no-underline">
-          <h1 className="logo">GyanVidya</h1>
+    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-lg">
+      <div className="container flex h-16 items-center justify-between">
+        <Link to="/" className="text-2xl font-bold text-primary">
+          GyanVidya
         </Link>
 
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link to="/" className={cn("px-4 py-2", location.pathname === "/" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
-                Home
-              </Link>
+              <NavigationMenuLink asChild>
+                <Link to="/" className={cn("px-4 py-2 flex items-center", location.pathname === "/" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
+                  Home
+                </Link>
+              </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="px-4 py-2">Category</NavigationMenuTrigger>
+              <NavigationMenuTrigger className="px-4 py-2 text-gray-600 hover:text-primary">
+                Category
+              </NavigationMenuTrigger>
               <NavigationMenuContent>
-                <div className="bg-white rounded-md shadow-lg p-2 min-w-[200px]">
-                  <ul className="space-y-1">
-                    <li><Link to="/category/romance" className="block px-4 py-2 hover:bg-gray-100 rounded">Romance</Link></li>
-                    <li><Link to="/category/fantasy" className="block px-4 py-2 hover:bg-gray-100 rounded">Fantasy</Link></li>
-                    <li><Link to="/category/science-fiction" className="block px-4 py-2 hover:bg-gray-100 rounded">Science Fiction</Link></li>
-                    <li><Link to="/category/paranormal" className="block px-4 py-2 hover:bg-gray-100 rounded">Paranormal</Link></li>
-                    <li><Link to="/category/mystery" className="block px-4 py-2 hover:bg-gray-100 rounded">Mystery</Link></li>
-                    <li><Link to="/category/horror" className="block px-4 py-2 hover:bg-gray-100 rounded">Horror</Link></li>
-                    <li><Link to="/category/thriller-suspense" className="block px-4 py-2 hover:bg-gray-100 rounded">Thriller/Suspense</Link></li>
-                    <li><Link to="/category/action-adventure" className="block px-4 py-2 hover:bg-gray-100 rounded">Action Adventure</Link></li>
-                    <li><Link to="/category/historical-fiction" className="block px-4 py-2 hover:bg-gray-100 rounded">Historical Fiction</Link></li>
-                    <li><Link to="/category/contemporary-fiction" className="block px-4 py-2 hover:bg-gray-100 rounded">Contemporary Fiction</Link></li>
-                  </ul>
-                </div>
+                <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                  <li className="row-span-3">
+                    <NavigationMenuLink asChild>
+                      <Link
+                        className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                        to="/"
+                      >
+                        <BookOpen className="h-6 w-6" />
+                        <div className="mb-2 mt-4 text-lg font-medium">
+                          All Books
+                        </div>
+                        <p className="text-sm leading-tight text-muted-foreground">
+                          Discover all books across various genres.
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                  </li>
+                  <ListItem href="#" title="Fiction">
+                    Immerse yourself in captivating stories.
+                  </ListItem>
+                  <ListItem href="#" title="Non-Fiction">
+                    Expand your knowledge with factual reads.
+                  </ListItem>
+                  <ListItem href="#" title="Children's Books">
+                    Engaging stories for young readers.
+                  </ListItem>
+                </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
-
+            
             <NavigationMenuItem>
               <Link to="/resell" className={cn("px-4 py-2 flex items-center", location.pathname === "/resell" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
-                <Package size={18} className="mr-1" />
+                <BookOpen size={18} className="mr-1" />
                 Resell Books
               </Link>
             </NavigationMenuItem>
@@ -138,248 +138,200 @@ const Header = () => {
             </NavigationMenuItem>
 
             {/* Admin Menu */}
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="px-4 py-2 text-orange-600 font-medium">
-                <Settings size={18} className="mr-1" />
-                Admin
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="bg-white rounded-md shadow-lg p-2 min-w-[250px]">
-                  <ul className="space-y-1">
-                    {!user ? (
-                      <>
-                        <li>
-                          <Link to="/auth" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded text-blue-600">
-                            <UserRound size={16} className="mr-2" />
-                            Admin Login
-                          </Link>
-                        </li>
-                        <li className="px-4 py-2 text-sm text-gray-500">
-                          Login required for admin access
-                        </li>
-                      </>
-                    ) : isAdmin ? (
-                      <>
-                        <li>
-                          <Link to="/admin/dashboard" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded text-green-600">
-                            <Settings size={16} className="mr-2" />
-                            Dashboard
-                          </Link>
-                        </li>
-                        <li>
-                          <Link to="/admin/books" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                            <BookOpen size={16} className="mr-2" />
-                            Manage Books
-                          </Link>
-                        </li>
-                        <li>
-                          <Link to="/order-history" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                            <Package size={16} className="mr-2" />
-                            Manage Orders
-                          </Link>
-                        </li>
-                        <li>
-                          <Link to="/admin/users" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                            <Users size={16} className="mr-2" />
-                            Manage Users
-                          </Link>
-                        </li>
-                      </>
-                    ) : (
-                      <li className="px-4 py-2 text-sm text-red-500">
-                        Admin access denied
+            {isAdmin && (
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="px-4 py-2 text-orange-600 font-medium">
+                  <Settings size={18} className="mr-1" />
+                  Admin
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="bg-white rounded-md shadow-lg p-2 min-w-[250px]">
+                    <ul className="space-y-1">
+                      <li>
+                        <Link to="/admin/dashboard" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded text-green-600">
+                          <Settings size={16} className="mr-2" />
+                          Dashboard
+                        </Link>
                       </li>
-                    )}
-                  </ul>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
+                      <li>
+                        <Link to="/admin/books" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
+                          <BookOpen size={16} className="mr-2" />
+                          Manage Books
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/order-history" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
+                          <Package size={16} className="mr-2" />
+                          Manage Orders
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/admin/users" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
+                          <Users size={16} className="mr-2" />
+                          Manage Users
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
 
-        <nav>
-          <ul className="nav-links">
-            <li className="hidden md:block">
-              <Link to="/cart" className={cn("relative flex items-center", location.pathname === "/cart" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
-                <ShoppingCart className="mr-1" size={18} />
-                <span>Cart</span>
-                {getTotalItems() > 0 && (
-                  <span className="absolute -top-2 -right-3 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {getTotalItems()}
-                  </span>
-                )}
-              </Link>
-            </li>
-
-            <li className="hidden md:block">
-              <Link to="/wishlist" className={cn("relative flex items-center ml-4", location.pathname === "/wishlist" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
-                <Heart className="mr-1" size={18} />
-                <span>Wishlist</span>
-                {getWishlistCount() > 0 && (
-                  <span className="absolute -top-2 -right-3 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {getWishlistCount()}
-                  </span>
-                )}
-              </Link>
-            </li>
-
-            <li className="notification-container relative">
-              <button 
-                className="notification-btn flex items-center"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowNotifications(!showNotifications);
-                }}
-              >
-                <Bell size={18} className="mr-1" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {showNotifications && (
-                <div className="notification-dropdown absolute right-0 top-10 bg-white rounded-md shadow-lg border border-gray-200 w-80 z-50">
-                  <div className="notification-header flex justify-between items-center p-3 border-b">
-                    <h3 className="font-medium">Notifications</h3>
-                    <button 
-                      className="text-sm text-primary hover:text-primary/80"
-                      onClick={markAllAsRead}
-                    >
-                      Mark all as read
-                    </button>
-                  </div>
-
-                  <div className="notification-list max-h-80 overflow-y-auto">
-                    {notifications.map((notification) => (
-                      <div 
-                        key={notification.id} 
-                        className={`p-3 border-b last:border-b-0 hover:bg-gray-50 ${notification.unread ? 'bg-blue-50/30' : ''}`}
-                      >
-                        <div className="flex justify-between items-start">
-                          <p className="text-sm">{notification.text}</p>
-                          {notification.unread && (
-                            <span className="h-2 w-2 bg-blue-500 rounded-full mt-1"></span>
-                          )}
-                        </div>
-                        <span className="text-xs text-gray-500 mt-1 block">{notification.time}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="notification-footer p-2 text-center border-t">
-                    <a href="#" className="text-sm text-primary hover:text-primary/80">
-                      View all notifications
-                    </a>
-                  </div>
-                </div>
+        <ul className="flex items-center gap-6">
+          <li>
+            <Link to="/cart" className="flex items-center relative">
+              <ShoppingCart size={24} />
+              {getTotalItems() > 0 && (
+                <span className="absolute -top-2 -right-3 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {getTotalItems()}
+                </span>
               )}
+            </Link>
+          </li>
+
+          <li>
+            <Link to="/wishlist" className="flex items-center relative">
+              <Heart size={24} />
+              {getWishlistCount() > 0 && (
+                <span className="absolute -top-2 -right-3 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {getWishlistCount()}
+                </span>
+              )}
+            </Link>
+          </li>
+
+          <li className="notification-container relative">
+            <button 
+              className="notification-btn flex items-center"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowNotifications(!showNotifications);
+              }}
+            >
+              <Bell size={18} className="mr-1" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {showNotifications && (
+              <div className="notification-dropdown absolute right-0 top-10 bg-white rounded-md shadow-lg border border-gray-200 w-80 z-50">
+                <div className="notification-header flex justify-between items-center p-3 border-b">
+                  <h3 className="font-medium">Notifications</h3>
+                  <button 
+                    className="text-sm text-primary hover:text-primary/80"
+                    onClick={markAllAsRead}
+                  >
+                    Mark all as read
+                  </button>
+                </div>
+
+                <div className="notification-list max-h-80 overflow-y-auto">
+                  {notifications.map((notification) => (
+                    <div 
+                      key={notification.id} 
+                      className={`p-3 border-b last:border-b-0 hover:bg-gray-50 ${notification.unread ? 'bg-blue-50/30' : ''}`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <p className="text-sm">{notification.text}</p>
+                        {notification.unread && (
+                          <span className="h-2 w-2 bg-blue-500 rounded-full mt-1"></span>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-500 mt-1 block">{notification.time}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="notification-footer p-2 text-center border-t">
+                  <a href="#" className="text-sm text-primary hover:text-primary/80">
+                    View all notifications
+                  </a>
+                </div>
+              </div>
+            )}
+          </li>
+
+          {/* If the user is logged in, show account icon with dropdown */}
+          {user ? (
+            <li className="relative flex items-center ml-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors p-2 group focus:outline-none"
+                    title="Account"
+                  >
+                    <UserRound size={24} className="text-primary group-hover:text-primary/80" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-64 mt-2" align="end">
+                  <DropdownMenuLabel className="flex flex-col pb-1 mb-1 border-b border-muted">
+                    <span className="font-bold text-base">
+                      {user.user_metadata?.name || "User"}
+                    </span>
+                    <span className="text-xs text-gray-500">{user.email}</span>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/dashboard" className="flex items-center gap-2 cursor-pointer">
+                          <UserRound size={16} /> Admin Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuItem
+                    onClick={logout}
+                    className="flex items-center gap-2 text-red-500 cursor-pointer"
+                  >
+                    <LogOut size={16} /> Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </li>
-
-            {/* If the user is logged in, show account icon with dropdown */}
-            {user ? (
-              <li className="relative flex items-center ml-4">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      className="flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors p-2 group focus:outline-none"
-                      title="Account"
-                    >
-                      <UserRound size={24} className="text-primary group-hover:text-primary/80" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-64 mt-2" align="end">
-                    <DropdownMenuLabel className="flex flex-col pb-1 mb-1 border-b border-muted">
-                      <span className="font-bold text-base">
-                        {user.user_metadata?.name || "User"}
-                      </span>
-                      <span className="text-xs text-gray-500">{user.email}</span>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/dashboard" className="flex items-center gap-2 cursor-pointer">
-                            <UserRound size={16} /> Admin Dashboard
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    <DropdownMenuItem
-                      onClick={logout}
-                      className="flex items-center gap-2 text-red-500 cursor-pointer"
-                    >
-                      <LogOut size={16} /> Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </li>
-            ) : (
-              <>
-                <li><Link to="/login" className="btn-login">Login</Link></li>
-                <li><Link to="/signup" className="btn-signup">Sign Up</Link></li>
-              </>
-            )}
-
-            {/* Admin-only link; hidden if not admin */}
-            {user && (
-              <li className="ml-4">
-                <AdminLink />
-              </li>
-            )}
-
-            {/* Mobile menu icon would go here for responsive design */}
-          </ul>
-        </nav>
+          ) : (
+            <>
+              <li><Link to="/login" className="btn-login">Login</Link></li>
+              <li><Link to="/signup" className="btn-signup">Sign Up</Link></li>
+            </>
+          )}
+        </ul>
       </div>
     </header>
   );
 };
 
-/** Show Admin link if user is admin */
-function AdminLink() {
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (!user) {
-      setIsAdmin(false);
-      setLoading(false);
-      return;
-    }
-    let stopped = false;
-    // DEBUG: Log the current user being checked for AdminLink
-    console.log("AdminLink: Checking admin status for user:", user?.id, user?.email);
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data, error }) => {
-        if (error) {
-          console.log("AdminLink: Error fetching user_roles:", error);
-        } else {
-          console.log("AdminLink: user_roles data for this user:", data);
-        }
-        if (!stopped) setIsAdmin(data?.role === "admin");
-        setLoading(false);
-      });
-    return () => {
-      stopped = true;
-    };
-  }, [user]);
-  if (loading || !isAdmin) return null;
+// A helper component for the NavigationMenu (assuming it's defined elsewhere or will be removed)
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
   return (
-    <Link
-      to="/admin/dashboard"
-      className="px-4 py-2 text-primary hover:underline rounded bg-primary/10"
-    >
-      Admin
-    </Link>
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
   );
-}
+});
+ListItem.displayName = "ListItem";
 
 export default Header;

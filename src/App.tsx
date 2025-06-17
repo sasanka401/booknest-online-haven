@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "sonner";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -7,6 +6,7 @@ import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { OrderProvider } from "./context/OrderContext";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminBooks from "./pages/AdminBooks";
 
 // Import pages
 import Index from "./pages/Index";
@@ -39,7 +39,9 @@ function AdminRoute({ children }: { children: JSX.Element }) {
   const [isAdmin, setIsAdmin] = React.useState<boolean | null>(null);
 
   React.useEffect(() => {
+    console.log("Current user:", user); // Debug log
     if (!user) {
+      console.log("No user found"); // Debug log
       setIsAdmin(false);
       return;
     }
@@ -47,13 +49,21 @@ function AdminRoute({ children }: { children: JSX.Element }) {
     (async () => {
       try {
         const { supabase } = await import("@/integrations/supabase/client");
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", user.id)
-          .maybeSingle(); // changed from .single() to .maybeSingle()
-        if (!stopped) setIsAdmin(data?.role === "admin");
+          .maybeSingle();
+        
+        console.log("Admin check result:", { data, error }); // Debug log
+        
+        if (!stopped) {
+          const isUserAdmin = data?.role === "admin";
+          console.log("Is user admin?", isUserAdmin); // Debug log
+          setIsAdmin(isUserAdmin);
+        }
       } catch (e) {
+        console.error("Error checking admin status:", e);
         setIsAdmin(false);
       }
     })();
@@ -61,6 +71,8 @@ function AdminRoute({ children }: { children: JSX.Element }) {
       stopped = true;
     };
   }, [user]);
+
+  console.log("AdminRoute render:", { loading, isAdmin, user }); // Debug log
 
   if (loading || isAdmin === null) {
     return <div className="flex min-h-screen items-center justify-center">Checking admin permissions...</div>;
@@ -83,13 +95,23 @@ function App() {
                     <Profile />
                   </PrivateRoute>
                 } />
-                {/* --- Add admin dashboard protected route here --- */}
+                {/* Admin Routes */}
                 <Route path="/admin/dashboard" element={
                   <AdminRoute>
                     <AdminDashboard />
                   </AdminRoute>
                 } />
-                {/* Protect routes as needed */}
+                <Route path="/admin/books" element={
+                  <AdminRoute>
+                    <AdminBooks />
+                  </AdminRoute>
+                } />
+                <Route path="/admin/books/new" element={
+                  <AdminRoute>
+                    <AdminBooks />
+                  </AdminRoute>
+                } />
+                {/* Regular Routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={

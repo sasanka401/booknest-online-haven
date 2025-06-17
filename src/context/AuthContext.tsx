@@ -1,7 +1,19 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+import React, { createContext, useContext, useState, ReactNode } from "react";
+// import { supabase } from "@/integrations/supabase/client"; // Removed Supabase import
+// import type { User, Session } from "@supabase/supabase-js"; // Removed Supabase types
 import { toast } from "sonner";
+
+// Mock User and Session types for in-memory authentication
+interface User {
+  id: string;
+  email: string;
+  user_metadata: { name?: string; full_name?: string };
+}
+
+interface Session {
+  user: User;
+  // Add other necessary session properties if your UI depends on them
+}
 
 // Auth context types
 interface AuthContextValue {
@@ -15,62 +27,56 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// Helper function for safe storage cleanup (see supabase-auth-clean-up)
+// Helper function for safe storage cleanup (no longer needed for Supabase)
 const cleanupAuthState = () => {
-  Object.keys(localStorage).forEach((key) => {
-    if (key.startsWith("supabase.auth.") || key.includes("sb-")) {
-      localStorage.removeItem(key);
-    }
-  });
-  Object.keys(sessionStorage).forEach((key) => {
-    if (key.startsWith("supabase.auth.") || key.includes("sb-")) {
-      sessionStorage.removeItem(key);
-    }
-  });
+  localStorage.removeItem("mockUser");
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  // Initialize user and session from mock localStorage or null
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem("mockUser");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Set to false initially as there's no async check on load
 
-  useEffect(() => {
-    // Listen to auth state
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Login method (updated: upsert profile after login)
+  // Mock login method
   const login = async (email: string, password: string) => {
     setLoading(true);
     cleanupAuthState();
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Upsert profile after login
-      const userId = data?.user?.id;
-      const name =
-        data?.user?.user_metadata?.name ||
-        data?.user?.user_metadata?.full_name ||
-        null;
-      if (userId) {
-        await supabase.from("profiles").upsert([
-          { id: userId, name }
-        ]);
+      // Simple mock authentication logic
+      if (email === "test@example.com" && password === "password123") {
+        const mockUser: User = {
+          id: "mock-user-id-123",
+          email: email,
+          user_metadata: { name: "Test User" },
+        };
+        const mockSession: Session = { user: mockUser };
+        setUser(mockUser);
+        setSession(mockSession);
+        localStorage.setItem("mockUser", JSON.stringify(mockUser));
+        toast.success("Logged in successfully!");
+      } else if (email === "admin@booknest.com" && password === "adminpass") {
+        // Mock admin user
+        const mockAdmin: User = {
+          id: "mock-admin-id-456",
+          email: email,
+          user_metadata: { name: "Admin" },
+        };
+        const mockAdminSession: Session = { user: mockAdmin };
+        setUser(mockAdmin);
+        setSession(mockAdminSession);
+        localStorage.setItem("mockUser", JSON.stringify(mockAdmin));
+        toast.success("Logged in as admin!");
+      } 
+      else {
+        throw new Error("Invalid credentials.");
       }
-
-      toast.success("Logged in!", { duration: 2000 });
     } catch (e: any) {
       toast.error(e.message || "Login failed");
     } finally {
@@ -78,31 +84,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Signup method with profile record creation
+  // Mock signup method
   const signup = async (name: string, email: string, password: string) => {
     setLoading(true);
     cleanupAuthState();
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: { name }
-        },
-      });
-      if (error) throw error;
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Ensure a profile row is created for new users after signup
-      const userId = data?.user?.id;
-      if (userId) {
-        await supabase.from("profiles").upsert([
-          { id: userId, name }
-        ]);
+      // Simple mock signup logic
+      if (email && password && name) {
+        const newMockUser: User = {
+          id: `mock-user-${Date.now()}`,
+          email: email,
+          user_metadata: { name: name },
+        };
+        const newMockSession: Session = { user: newMockUser };
+        setUser(newMockUser);
+        setSession(newMockSession);
+        localStorage.setItem("mockUser", JSON.stringify(newMockUser));
+        toast.success("Account created successfully!");
+      } else {
+        throw new Error("Please fill all fields.");
       }
-
-      toast.success("Signup successful! Please check your inbox.");
     } catch (e: any) {
       toast.error(e.message || "Signup failed");
     } finally {
@@ -110,16 +114,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Logout
+  // Mock logout
   const logout = async () => {
     setLoading(true);
     cleanupAuthState();
     try {
-      await supabase.auth.signOut({ scope: "global" });
+      // Simulate delay
+      await new Promise(resolve => setTimeout(resolve, 300));
       setUser(null);
       setSession(null);
       toast("Logged out");
-      window.location.href = "/auth";
+      // No actual redirect needed if Auth handles navigation
     } catch (e: any) {
       toast.error("Logout failed");
     } finally {

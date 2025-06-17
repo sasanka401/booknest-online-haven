@@ -13,10 +13,9 @@ import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { ShoppingCart, Heart, IndianRupee } from "lucide-react";
-import AdminDashboard from "@/pages/AdminDashboard";
 import { useBooks } from "@/integrations/supabase/useBooks";
 
-// Book data type -- use snake_case to match Supabase and how it's used in the file
+// Book data type updated to match mock backend and useBooks hook
 interface Book {
   id: number;
   title: string;
@@ -24,7 +23,9 @@ interface Book {
   price: number;
   image_url: string | null;
   rating: number | null;
-  language?: string | null;
+  language: string | null; // Now required as per mock data
+  stock: number; // Added stock to match mock data
+  created_at: string; // Added created_at to match mock data
 }
 
 // Add this new component at the top of the file, after the imports
@@ -89,8 +90,8 @@ const Index = () => {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  // Fetch books from Supabase
-  const { data: books, isLoading, error } = useBooks();
+  // Fetch books from mock backend
+  const { books, isLoading, error } = useBooks();
 
   // Group books by language
   const booksByLanguage = (books || []).reduce(
@@ -129,24 +130,14 @@ const Index = () => {
   };
 
   const handleAddToCart = (book: Book) => {
-    // Transform the book to match cart context expectations
-    const cartBook = {
-      ...book,
-      imageUrl: book.image_url || "/placeholder.svg"
-    };
-    addToCart(cartBook);
+    addToCart(book);
   };
 
   const handleToggleWishlist = (book: Book) => {
     if (isInWishlist(book.id)) {
       removeFromWishlist(book.id);
     } else {
-      // Transform the book to match wishlist context expectations
-      const wishlistBook = {
-        ...book,
-        imageUrl: book.image_url || "/placeholder.svg"
-      };
-      addToWishlist(wishlistBook);
+      addToWishlist(book);
     }
   };
 
@@ -197,6 +188,7 @@ const Index = () => {
                 e.preventDefault();
                 document.getElementById('assamese-books')?.scrollIntoView({ behavior: 'smooth' });
               }}
+              title="View Assamese Books"
             >
               Assamese Books
             </a>
@@ -207,6 +199,7 @@ const Index = () => {
                 e.preventDefault();
                 document.getElementById('hindi-books')?.scrollIntoView({ behavior: 'smooth' });
               }}
+              title="View Hindi Books"
             >
               Hindi Books
             </a>
@@ -217,6 +210,7 @@ const Index = () => {
                 e.preventDefault();
                 document.getElementById('english-books')?.scrollIntoView({ behavior: 'smooth' });
               }}
+              title="View English Books"
             >
               English Books
             </a>
@@ -249,24 +243,17 @@ const Index = () => {
                       <IndianRupee size={14} />
                       {book.price?.toFixed?.(0)}
                     </div>
-                    <div className="book-rating">
-                      {renderStars(book.rating)}
-                      <span className="ml-1 text-sm text-gray-600">({book.rating ?? "N/A"})</span>
-                    </div>
-                    <div className="book-actions">
-                      <button 
-                        className="add-to-cart flex items-center gap-1"
-                        onClick={() => handleAddToCart(book)}
-                      >
-                        <ShoppingCart size={16} />
-                        <span>Add to Cart</span>
+                    <div className="book-rating">{renderStars(book.rating)}</div>
+                    <div className="flex gap-2 mt-4">
+                      <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
+                        <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </button>
                       <button 
-                        className={`add-to-wishlist ${isInWishlist(book.id) ? 'text-red-500' : 'text-gray-400'}`}
-                        onClick={() => handleToggleWishlist(book)}
-                        aria-label={isInWishlist(book.id) ? "Remove from wishlist" : "Add to wishlist"}
+                        onClick={() => handleToggleWishlist(book)} 
+                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                        <Heart size={20} fill={isInWishlist(book.id) ? "currentColor" : "none"} />
+                        <Heart size={16} />
                       </button>
                     </div>
                   </div>
@@ -274,20 +261,15 @@ const Index = () => {
               ))}
             </div>
           )}
-          {!isLoading && books?.length === 0 && (
-            <div className="text-center my-12 text-gray-500">No books found.</div>
-          )}
+        </div>
 
-          {/* Assamese Books Section */}
-          <h2 className="section-title text-center mt-16" id="assamese-books">Assamese Books</h2>
-          <div className="book-grid" id="assamese-book-list">
-            {booksByLanguage.assamese && booksByLanguage.assamese.length > 0 ? (
-              booksByLanguage.assamese.map((book) => (
-                <div 
-                  key={book.id} 
-                  className="book-card opacity-0" 
-                  style={{ animationDelay: `${book.id * 0.1}s` }}
-                >
+        {/* Assamese Books Section */}
+        {booksByLanguage.assamese && booksByLanguage.assamese.length > 0 && (
+          <div className="container mt-12" id="assamese-books">
+            <h2 className="section-title text-center">Assamese Books</h2>
+            <div className="book-grid">
+              {booksByLanguage.assamese.slice(0, 6).map((book) => (
+                <div key={book.id} className="book-card">
                   <img src={book.image_url ?? "/placeholder.svg"} alt={book.title} className="book-image" />
                   <div className="book-info">
                     <h3 className="book-title">{book.title}</h3>
@@ -296,44 +278,33 @@ const Index = () => {
                       <IndianRupee size={14} />
                       {book.price?.toFixed?.(0)}
                     </div>
-                    <div className="book-rating">
-                      {renderStars(book.rating)}
-                      <span className="ml-1 text-sm text-gray-600">({book.rating ?? "N/A"})</span>
-                    </div>
-                    <div className="book-actions">
-                      <button 
-                        className="add-to-cart flex items-center gap-1"
-                        onClick={() => handleAddToCart(book)}
-                      >
-                        <ShoppingCart size={16} />
-                        <span>Add to Cart</span>
+                    <div className="book-rating">{renderStars(book.rating)}</div>
+                    <div className="flex gap-2 mt-4">
+                      <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
+                        <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </button>
                       <button 
-                        className={`add-to-wishlist ${isInWishlist(book.id) ? 'text-red-500' : 'text-gray-400'}`}
-                        onClick={() => handleToggleWishlist(book)}
-                        aria-label={isInWishlist(book.id) ? "Remove from wishlist" : "Add to wishlist"}
+                        onClick={() => handleToggleWishlist(book)} 
+                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                        <Heart size={20} fill={isInWishlist(book.id) ? "currentColor" : "none"} />
+                        <Heart size={16} />
                       </button>
                     </div>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="text-center my-8 text-gray-500">No Assamese books found.</div>
-            )}
+              ))}
+            </div>
           </div>
+        )}
 
-          {/* Hindi Books Section */}
-          <h2 className="section-title text-center mt-16" id="hindi-books">Hindi Books</h2>
-          <div className="book-grid" id="hindi-book-list">
-            {booksByLanguage.hindi && booksByLanguage.hindi.length > 0 ? (
-              booksByLanguage.hindi.map((book) => (
-                <div 
-                  key={book.id} 
-                  className="book-card opacity-0" 
-                  style={{ animationDelay: `${book.id * 0.1}s` }}
-                >
+        {/* Hindi Books Section */}
+        {booksByLanguage.hindi && booksByLanguage.hindi.length > 0 && (
+          <div className="container mt-12" id="hindi-books">
+            <h2 className="section-title text-center">Hindi Books</h2>
+            <div className="book-grid">
+              {booksByLanguage.hindi.slice(0, 6).map((book) => (
+                <div key={book.id} className="book-card">
                   <img src={book.image_url ?? "/placeholder.svg"} alt={book.title} className="book-image" />
                   <div className="book-info">
                     <h3 className="book-title">{book.title}</h3>
@@ -342,44 +313,33 @@ const Index = () => {
                       <IndianRupee size={14} />
                       {book.price?.toFixed?.(0)}
                     </div>
-                    <div className="book-rating">
-                      {renderStars(book.rating)}
-                      <span className="ml-1 text-sm text-gray-600">({book.rating ?? "N/A"})</span>
-                    </div>
-                    <div className="book-actions">
-                      <button 
-                        className="add-to-cart flex items-center gap-1"
-                        onClick={() => handleAddToCart(book)}
-                      >
-                        <ShoppingCart size={16} />
-                        <span>Add to Cart</span>
+                    <div className="book-rating">{renderStars(book.rating)}</div>
+                    <div className="flex gap-2 mt-4">
+                      <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
+                        <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </button>
                       <button 
-                        className={`add-to-wishlist ${isInWishlist(book.id) ? 'text-red-500' : 'text-gray-400'}`}
-                        onClick={() => handleToggleWishlist(book)}
-                        aria-label={isInWishlist(book.id) ? "Remove from wishlist" : "Add to wishlist"}
+                        onClick={() => handleToggleWishlist(book)} 
+                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                        <Heart size={20} fill={isInWishlist(book.id) ? "currentColor" : "none"} />
+                        <Heart size={16} />
                       </button>
                     </div>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="text-center my-8 text-gray-500">No Hindi books found.</div>
-            )}
+              ))}
+            </div>
           </div>
+        )}
 
-          {/* English Books Section */}
-          <h2 className="section-title text-center mt-16" id="english-books">English Books</h2>
-          <div className="book-grid" id="english-book-list">
-            {booksByLanguage.english && booksByLanguage.english.length > 0 ? (
-              booksByLanguage.english.map((book) => (
-                <div 
-                  key={book.id} 
-                  className="book-card opacity-0" 
-                  style={{ animationDelay: `${book.id * 0.1}s` }}
-                >
+        {/* English Books Section */}
+        {booksByLanguage.english && booksByLanguage.english.length > 0 && (
+          <div className="container mt-12" id="english-books">
+            <h2 className="section-title text-center">English Books</h2>
+            <div className="book-grid">
+              {booksByLanguage.english.slice(0, 6).map((book) => (
+                <div key={book.id} className="book-card">
                   <img src={book.image_url ?? "/placeholder.svg"} alt={book.title} className="book-image" />
                   <div className="book-info">
                     <h3 className="book-title">{book.title}</h3>
@@ -388,71 +348,54 @@ const Index = () => {
                       <IndianRupee size={14} />
                       {book.price?.toFixed?.(0)}
                     </div>
-                    <div className="book-rating">
-                      {renderStars(book.rating)}
-                      <span className="ml-1 text-sm text-gray-600">({book.rating ?? "N/A"})</span>
-                    </div>
-                    <div className="book-actions">
-                      <button 
-                        className="add-to-cart flex items-center gap-1"
-                        onClick={() => handleAddToCart(book)}
-                      >
-                        <ShoppingCart size={16} />
-                        <span>Add to Cart</span>
+                    <div className="book-rating">{renderStars(book.rating)}</div>
+                    <div className="flex gap-2 mt-4">
+                      <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
+                        <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </button>
                       <button 
-                        className={`add-to-wishlist ${isInWishlist(book.id) ? 'text-red-500' : 'text-gray-400'}`}
-                        onClick={() => handleToggleWishlist(book)}
-                        aria-label={isInWishlist(book.id) ? "Remove from wishlist" : "Add to wishlist"}
+                        onClick={() => handleToggleWishlist(book)} 
+                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                        <Heart size={20} fill={isInWishlist(book.id) ? "currentColor" : "none"} />
+                        <Heart size={16} />
                       </button>
                     </div>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="text-center my-8 text-gray-500">No English books found.</div>
-            )}
+              ))}
+            </div>
           </div>
+        )}
 
-          {/* Pagination below English Books */}
-          <div className="mt-8">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious href="#" />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#" isActive>1</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">2</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext href="#" />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
+        {/* Pagination - will be functional with proper backend pagination */}
+        <div className="container mt-12 mb-8">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious href="#" title="Previous Page" />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#" title="Page 1">1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#" isActive title="Page 2">2</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#" title="Page 3">3</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="#" title="Next Page" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </main>
-
       <Footer />
       <ScrollToTop />
-
-      {showNotifications && (
-        <div 
-          className="fixed inset-0 z-40"
-          onClick={() => setShowNotifications(false)}
-        ></div>
-      )}
     </div>
   );
 };

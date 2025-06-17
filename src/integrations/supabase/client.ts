@@ -8,4 +8,104 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+// This is a mock Supabase client for frontend-only demonstration.
+// All data will be in-memory and will not persist.
+
+export const supabase = {
+  from: (tableName) => ({
+    select: (columns = '*') => ({
+      order: (column, options) => ({
+        eq: (col, value) => ({
+          maybeSingle: async () => {
+            // Mock data for user_roles and other single selects
+            if (tableName === 'user_roles' && col === 'user_id') {
+              if (value === 'mock-admin-id-456') { // Mock admin user ID
+                return { data: { role: 'admin' }, error: null };
+              }
+              return { data: { role: 'user' }, error: null };
+            }
+            return { data: null, error: { message: `Mock: No single data for ${tableName}` } };
+          },
+          single: async () => {
+            if (tableName === 'user_roles' && col === 'user_id') {
+              if (value === 'mock-admin-id-456') { // Mock admin user ID
+                return { data: { role: 'admin' }, error: null };
+              }
+              return { data: { role: 'user' }, error: null };
+            }
+            return { data: null, error: { message: `Mock: No single data for ${tableName}` } };
+          }
+        }),
+        then: async (callback) => {
+          // Mock data for common tables
+          if (tableName === 'books') {
+            const mockBooks = JSON.parse(localStorage.getItem('mockBooks') || '[]') || [
+              { id: 1, title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', price: 25.00, image_url: 'https://images-na.ssl-images-amazon.com/images/I/41K-vF7NhmL._SX331_BO1,204,203,200_.jpg', rating: 4.5, stock: 10, language: 'English', created_at: new Date().toISOString() },
+              { id: 2, title: '1984', author: 'George Orwell', price: 18.50, image_url: 'https://images-na.ssl-images-amazon.com/images/I/41-D9E2F-6L._SX331_BO1,204,203,200_.jpg', rating: 4.8, stock: 5, language: 'English', created_at: new Date().toISOString() },
+              { id: 3, title: 'To Kill a Mockingbird', author: 'Harper Lee', price: 22.00, image_url: 'https://images-na.ssl-images-amazon.com/images/I/413J7o6g4UL._SX331_BO1,204,203,200_.jpg', rating: 4.7, stock: 12, language: 'English', created_at: new Date().toISOString() },
+              { id: 4, title: 'Pride and Prejudice', author: 'Jane Austen', price: 15.75, image_url: 'https://images-na.ssl-images-amazon.com/images/I/415o9f8zNGL._SX331_BO1,204,203,200_.jpg', rating: 4.6, stock: 8, language: 'English', created_at: new Date().toISOString() },
+            ];
+            localStorage.setItem('mockBooks', JSON.stringify(mockBooks));
+            return callback({ data: mockBooks, error: null });
+          } else if (tableName === 'orders') {
+            const mockOrders = JSON.parse(localStorage.getItem('mockOrders') || '[]') || [
+              { id: 1, order_number: 'ORD001', total: 75.00, status: 'completed', created_at: new Date(Date.now() - 86400000).toISOString(), user_id: 'mock-user-id-123', order_date: new Date(Date.now() - 86400000).toISOString(), subtotal: 60, shipping: 15, payment_method: 'Credit Card', shipping_method: 'standard', shipping_address: {} },
+              { id: 2, order_number: 'ORD002', total: 40.00, status: 'processing', created_at: new Date().toISOString(), user_id: 'mock-user-id-123', order_date: new Date().toISOString(), subtotal: 35, shipping: 5, payment_method: 'UPI', shipping_method: 'standard', shipping_address: {} },
+            ];
+             localStorage.setItem('mockOrders', JSON.stringify(mockOrders));
+            return callback({ data: mockOrders, error: null });
+          }
+          return callback({ data: [], error: null });
+        }
+      })
+    }),
+    insert: async (data) => {
+      await new Promise(resolve => setTimeout(resolve, 300)); // Simulate delay
+      if (tableName === 'books') {
+        const currentBooks = JSON.parse(localStorage.getItem('mockBooks') || '[]');
+        const newBook = { ...data[0], id: currentBooks.length > 0 ? Math.max(...currentBooks.map(b => b.id)) + 1 : 1, created_at: new Date().toISOString() };
+        currentBooks.push(newBook);
+        localStorage.setItem('mockBooks', JSON.stringify(currentBooks));
+        return { data: [newBook], error: null };
+      } else if (tableName === 'orders') {
+        const currentOrders = JSON.parse(localStorage.getItem('mockOrders') || '[]');
+        const newOrder = { ...data[0], id: currentOrders.length > 0 ? Math.max(...currentOrders.map(o => o.id)) + 1 : 1, created_at: new Date().toISOString() };
+        currentOrders.push(newOrder);
+        localStorage.setItem('mockOrders', JSON.stringify(currentOrders));
+        return { data: [newOrder], error: null };
+      }
+      return { data: null, error: { message: `Mock: Insert not implemented for ${tableName}` } };
+    },
+    delete: async () => {
+      await new Promise(resolve => setTimeout(resolve, 300)); // Simulate delay
+      if (tableName === 'books') {
+        // Implement actual deletion logic if needed, for now just simulate success
+        return { data: [], error: null };
+      }
+      return { data: null, error: { message: `Mock: Delete not implemented for ${tableName}` } };
+    },
+    update: async (data, options) => {
+        await new Promise(resolve => setTimeout(resolve, 300)); // Simulate delay
+        if (tableName === 'books') {
+            const currentBooks = JSON.parse(localStorage.getItem('mockBooks') || '[]');
+            const updatedBooks = currentBooks.map(book => {
+                // This is a simplified update that assumes 'eq' filter for 'id'
+                if (options.eq && options.eq[0] === 'id' && book.id === options.eq[1]) {
+                    return { ...book, ...data };
+                }
+                return book;
+            });
+            localStorage.setItem('mockBooks', JSON.stringify(updatedBooks));
+            return { data: updatedBooks.filter(book => options.eq && options.eq[0] === 'id' && book.id === options.eq[1]), error: null };
+        }
+        return { data: null, error: { message: `Mock: Update not implemented for ${tableName}` } };
+    }
+  }),
+  auth: {
+    onAuthStateChange: () => ({ subscription: { unsubscribe: () => {} } }),
+    getSession: async () => ({ data: { session: null }, error: null }),
+    signInWithPassword: async (credentials) => ({ data: { user: null }, error: { message: 'Mock authentication only' } }),
+    signUp: async (credentials) => ({ data: { user: null }, error: { message: 'Mock authentication only' } }),
+    signOut: async () => ({ error: null }),
+  },
+};
