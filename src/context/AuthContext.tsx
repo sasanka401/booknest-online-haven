@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 import React, { createContext, useContext, useState, ReactNode } from "react";
 // import { supabase } from "@/integrations/supabase/client"; // Removed Supabase import
 // import type { User, Session } from "@supabase/supabase-js"; // Removed Supabase types
+=======
+
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { User, Session } from "@supabase/supabase-js";
+>>>>>>> 14f5a028cbd60355ba989eace090162278e0e7ef
 import { toast } from "sonner";
 
 // Mock User and Session types for in-memory authentication
@@ -20,6 +27,7 @@ interface AuthContextValue {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -39,9 +47,72 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
   const [session, setSession] = useState<Session | null>(null);
+<<<<<<< HEAD
   const [loading, setLoading] = useState(false); // Set to false initially as there's no async check on load
 
   // Mock login method
+=======
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check admin status whenever user changes
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+    
+    let stopped = false;
+    console.log("AuthContext: Checking admin status for user:", user?.id, user?.email);
+    
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          console.log("AuthContext: Error fetching user_roles:", error);
+          if (!stopped) setIsAdmin(false);
+        } else {
+          console.log("AuthContext: user_roles data for this user:", data);
+          if (!stopped) {
+            const adminStatus = data?.role === "admin";
+            setIsAdmin(adminStatus);
+            
+            // If user is admin and just logged in, redirect to admin dashboard
+            if (adminStatus && window.location.pathname === "/") {
+              console.log("AuthContext: Redirecting admin to dashboard");
+              window.location.href = "/admin/dashboard";
+            }
+          }
+        }
+      });
+      
+    return () => {
+      stopped = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    // Listen to auth state
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("AuthContext: Auth state change:", event, session?.user?.email);
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Login method (updated: upsert profile after login)
+>>>>>>> 14f5a028cbd60355ba989eace090162278e0e7ef
   const login = async (email: string, password: string) => {
     setLoading(true);
     cleanupAuthState();
@@ -123,6 +194,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await new Promise(resolve => setTimeout(resolve, 300));
       setUser(null);
       setSession(null);
+      setIsAdmin(false);
       toast("Logged out");
       // No actual redirect needed if Auth handles navigation
     } catch (e: any) {
@@ -133,7 +205,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
