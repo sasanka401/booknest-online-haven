@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "sonner";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -5,8 +6,6 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { OrderProvider } from "./context/OrderContext";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminBooks from "./pages/AdminBooks";
 
 // Import pages
 import Index from "./pages/Index";
@@ -33,53 +32,6 @@ function PrivateRoute({ children }: { children: JSX.Element }) {
   return user ? children : <Navigate to="/auth" replace />;
 }
 
-// Admin-only route wrapper (inline)
-function AdminRoute({ children }: { children: JSX.Element }) {
-  const { user, loading } = useAuth();
-  const [isAdmin, setIsAdmin] = React.useState<boolean | null>(null);
-
-  React.useEffect(() => {
-    console.log("Current user:", user); // Debug log
-    if (!user) {
-      console.log("No user found"); // Debug log
-      setIsAdmin(false);
-      return;
-    }
-    let stopped = false;
-    (async () => {
-      try {
-        const { supabase } = await import("@/integrations/supabase/client");
-        const { data, error } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        
-        console.log("Admin check result:", { data, error }); // Debug log
-        
-        if (!stopped) {
-          const isUserAdmin = data?.role === "admin";
-          console.log("Is user admin?", isUserAdmin); // Debug log
-          setIsAdmin(isUserAdmin);
-        }
-      } catch (e) {
-        console.error("Error checking admin status:", e);
-        setIsAdmin(false);
-      }
-    })();
-    return () => {
-      stopped = true;
-    };
-  }, [user]);
-
-  console.log("AdminRoute render:", { loading, isAdmin, user }); // Debug log
-
-  if (loading || isAdmin === null) {
-    return <div className="flex min-h-screen items-center justify-center">Checking admin permissions...</div>;
-  }
-  return user && isAdmin ? children : <Navigate to="/" replace />;
-}
-
 function App() {
   return (
     <Router>
@@ -94,22 +46,6 @@ function App() {
                   <PrivateRoute>
                     <Profile />
                   </PrivateRoute>
-                } />
-                {/* Admin Routes */}
-                <Route path="/admin/dashboard" element={
-                  <AdminRoute>
-                    <AdminDashboard />
-                  </AdminRoute>
-                } />
-                <Route path="/admin/books" element={
-                  <AdminRoute>
-                    <AdminBooks />
-                  </AdminRoute>
-                } />
-                <Route path="/admin/books/new" element={
-                  <AdminRoute>
-                    <AdminBooks />
-                  </AdminRoute>
                 } />
                 {/* Regular Routes */}
                 <Route path="/" element={<Index />} />

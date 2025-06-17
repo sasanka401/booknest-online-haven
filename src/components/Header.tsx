@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from "react";
-=======
+
 import { useState, useEffect } from "react";
->>>>>>> 14f5a028cbd60355ba989eace090162278e0e7ef
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { ShoppingCart, MapPin, Package, Bell, Heart, UserRound, LogOut, Settings, Users, BookOpen } from "lucide-react";
+import { ShoppingCart, MapPin, Package, Bell, Heart, UserRound, LogOut, BookOpen } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -37,22 +34,7 @@ const Header = () => {
     { id: 2, text: "Your order #12345 has been shipped", time: "1 day ago", unread: true },
     { id: 3, text: "Special offer: 20% off on all fiction books", time: "3 days ago", unread: false }
   ]);
-<<<<<<< HEAD
   const { user, logout } = useAuth();
-
-  useEffect(() => {
-    if (!user) {
-      setIsAdmin(false);
-      return;
-    }
-    // For mock backend, determine admin status based on mock user ID
-    setIsAdmin(user.id === "mock-admin-id-456");
-
-    // Removed Supabase calls for user_roles here
-  }, [user]);
-=======
-  const { user, logout, isAdmin } = useAuth();
->>>>>>> 14f5a028cbd60355ba989eace090162278e0e7ef
 
   const markAllAsRead = () => {
     const updatedNotifications = notifications.map(notification => ({
@@ -143,86 +125,6 @@ const Header = () => {
                 Order History
               </Link>
             </NavigationMenuItem>
-
-<<<<<<< HEAD
-            {/* Admin Menu */}
-            {isAdmin && (
-=======
-            {/* Admin Menu - Only show if user is logged in */}
-            {user && (
->>>>>>> 14f5a028cbd60355ba989eace090162278e0e7ef
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="px-4 py-2 text-orange-600 font-medium">
-                  <Settings size={18} className="mr-1" />
-                  Admin
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="bg-white rounded-md shadow-lg p-2 min-w-[250px]">
-                    <ul className="space-y-1">
-<<<<<<< HEAD
-                      <li>
-                        <Link to="/admin/dashboard" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded text-green-600">
-                          <Settings size={16} className="mr-2" />
-                          Dashboard
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/admin/books" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                          <BookOpen size={16} className="mr-2" />
-                          Manage Books
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/order-history" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                          <Package size={16} className="mr-2" />
-                          Manage Orders
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/admin/users" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                          <Users size={16} className="mr-2" />
-                          Manage Users
-                        </Link>
-                      </li>
-=======
-                      {isAdmin ? (
-                        <>
-                          <li>
-                            <Link to="/admin/dashboard" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded text-green-600">
-                              <Settings size={16} className="mr-2" />
-                              Dashboard
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="/admin/books" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                              <BookOpen size={16} className="mr-2" />
-                              Manage Books
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="/order-history" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                              <Package size={16} className="mr-2" />
-                              Manage Orders
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="/admin/users" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
-                              <Users size={16} className="mr-2" />
-                              Manage Users
-                            </Link>
-                          </li>
-                        </>
-                      ) : (
-                        <li className="px-4 py-2 text-sm text-red-500">
-                          Admin access denied
-                        </li>
-                      )}
->>>>>>> 14f5a028cbd60355ba989eace090162278e0e7ef
-                    </ul>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            )}
           </NavigationMenuList>
         </NavigationMenu>
 
@@ -323,16 +225,6 @@ const Header = () => {
                     <span className="text-xs text-gray-500">{user.email}</span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {isAdmin && (
-                    <>
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin/dashboard" className="flex items-center gap-2 cursor-pointer">
-                          <UserRound size={16} /> Admin Dashboard
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
                   <DropdownMenuItem
                     onClick={logout}
                     className="flex items-center gap-2 text-red-500 cursor-pointer"
@@ -342,7 +234,6 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </li>
-<<<<<<< HEAD
           ) : (
             <>
               <li><Link to="/login" className="btn-login">Login</Link></li>
@@ -350,68 +241,12 @@ const Header = () => {
             </>
           )}
         </ul>
-=======
-
-            {/* If the user is logged in, show account icon with dropdown */}
-            {user ? (
-              <li className="relative flex items-center ml-4">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      className="flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors p-2 group focus:outline-none"
-                      title="Account"
-                    >
-                      <UserRound size={24} className="text-primary group-hover:text-primary/80" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-64 mt-2" align="end">
-                    <DropdownMenuLabel className="flex flex-col pb-1 mb-1 border-b border-muted">
-                      <span className="font-bold text-base">
-                        {user.user_metadata?.name || "User"}
-                      </span>
-                      <span className="text-xs text-gray-500">{user.email}</span>
-                      {isAdmin && (
-                        <span className="text-xs text-orange-600 font-medium">Admin</span>
-                      )}
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/dashboard" className="flex items-center gap-2 cursor-pointer">
-                            <Settings size={16} /> Admin Dashboard
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    <DropdownMenuItem
-                      onClick={logout}
-                      className="flex items-center gap-2 text-red-500 cursor-pointer"
-                    >
-                      <LogOut size={16} /> Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </li>
-            ) : (
-              <>
-                <li><Link to="/login" className="btn-login">Login</Link></li>
-                <li><Link to="/signup" className="btn-signup">Sign Up</Link></li>
-              </>
-            )}
-
-            {/* Remove the old AdminLink component since we're handling it in the dropdown now */}
-          </ul>
-        </nav>
->>>>>>> 14f5a028cbd60355ba989eace090162278e0e7ef
       </div>
     </header>
   );
 };
 
-<<<<<<< HEAD
-// A helper component for the NavigationMenu (assuming it's defined elsewhere or will be removed)
+// A helper component for the NavigationMenu
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a">
@@ -438,6 +273,4 @@ const ListItem = React.forwardRef<
 });
 ListItem.displayName = "ListItem";
 
-=======
->>>>>>> 14f5a028cbd60355ba989eace090162278e0e7ef
 export default Header;
