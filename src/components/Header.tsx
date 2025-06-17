@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { ShoppingCart, MapPin, Package, Bell, Heart, UserRound, LogOut } from "lucide-react";
+import { ShoppingCart, MapPin, Package, Bell, Heart, UserRound, LogOut, Settings, Users, BookOpen } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -135,6 +135,64 @@ const Header = () => {
                 <Package size={18} className="mr-1" />
                 Order History
               </Link>
+            </NavigationMenuItem>
+
+            {/* Admin Menu */}
+            <NavigationMenuItem>
+              <NavigationMenuTrigger className="px-4 py-2 text-orange-600 font-medium">
+                <Settings size={18} className="mr-1" />
+                Admin
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <div className="bg-white rounded-md shadow-lg p-2 min-w-[250px]">
+                  <ul className="space-y-1">
+                    {!user ? (
+                      <>
+                        <li>
+                          <Link to="/auth" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded text-blue-600">
+                            <UserRound size={16} className="mr-2" />
+                            Admin Login
+                          </Link>
+                        </li>
+                        <li className="px-4 py-2 text-sm text-gray-500">
+                          Login required for admin access
+                        </li>
+                      </>
+                    ) : isAdmin ? (
+                      <>
+                        <li>
+                          <Link to="/admin/dashboard" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded text-green-600">
+                            <Settings size={16} className="mr-2" />
+                            Dashboard
+                          </Link>
+                        </li>
+                        <li>
+                          <Link to="/admin/books" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
+                            <BookOpen size={16} className="mr-2" />
+                            Manage Books
+                          </Link>
+                        </li>
+                        <li>
+                          <Link to="/order-history" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
+                            <Package size={16} className="mr-2" />
+                            Manage Orders
+                          </Link>
+                        </li>
+                        <li>
+                          <Link to="/admin/users" className="flex items-center px-4 py-2 hover:bg-gray-100 rounded">
+                            <Users size={16} className="mr-2" />
+                            Manage Users
+                          </Link>
+                        </li>
+                      </>
+                    ) : (
+                      <li className="px-4 py-2 text-sm text-red-500">
+                        Admin access denied
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </NavigationMenuContent>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
