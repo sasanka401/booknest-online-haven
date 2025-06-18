@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import {
   Pagination,
@@ -11,13 +12,8 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
-<<<<<<< HEAD
-import { ShoppingCart, IndianRupee } from "lucide-react";
-import AdminDashboard from "@/pages/AdminDashboard";
-=======
 import { useWishlist } from "@/context/WishlistContext";
 import { ShoppingCart, Heart, IndianRupee } from "lucide-react";
->>>>>>> 51c025eaf1517dc66c6f5bf3312cd716962793c7
 import { useBooks } from "@/integrations/supabase/useBooks";
 
 // Book data type updated to match mock backend and useBooks hook
@@ -93,6 +89,7 @@ const ScrollToTop = () => {
 const Index = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
   // Fetch books from mock backend
   const { books, isLoading, error } = useBooks();
@@ -137,8 +134,6 @@ const Index = () => {
     addToCart(book);
   };
 
-<<<<<<< HEAD
-=======
   const handleToggleWishlist = (book: Book) => {
     if (isInWishlist(book.id)) {
       removeFromWishlist(book.id);
@@ -147,7 +142,6 @@ const Index = () => {
     }
   };
 
->>>>>>> 51c025eaf1517dc66c6f5bf3312cd716962793c7
   // Scroll animations (can skip for brevity in code sample)
   useEffect(() => {
     if (books && books.length) {
@@ -255,8 +249,6 @@ const Index = () => {
                       <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </button>
-<<<<<<< HEAD
-=======
                       <button 
                         onClick={() => handleToggleWishlist(book)} 
                         className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
@@ -264,7 +256,6 @@ const Index = () => {
                       >
                         <Heart size={16} />
                       </button>
->>>>>>> 51c025eaf1517dc66c6f5bf3312cd716962793c7
                     </div>
                   </div>
                 </div>
@@ -293,8 +284,6 @@ const Index = () => {
                       <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </button>
-<<<<<<< HEAD
-=======
                       <button 
                         onClick={() => handleToggleWishlist(book)} 
                         className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
@@ -302,7 +291,6 @@ const Index = () => {
                       >
                         <Heart size={16} />
                       </button>
->>>>>>> 51c025eaf1517dc66c6f5bf3312cd716962793c7
                     </div>
                   </div>
                 </div>
@@ -331,8 +319,6 @@ const Index = () => {
                       <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </button>
-<<<<<<< HEAD
-=======
                       <button 
                         onClick={() => handleToggleWishlist(book)} 
                         className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
@@ -340,7 +326,6 @@ const Index = () => {
                       >
                         <Heart size={16} />
                       </button>
->>>>>>> 51c025eaf1517dc66c6f5bf3312cd716962793c7
                     </div>
                   </div>
                 </div>
@@ -369,8 +354,6 @@ const Index = () => {
                       <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </button>
-<<<<<<< HEAD
-=======
                       <button 
                         onClick={() => handleToggleWishlist(book)} 
                         className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
@@ -378,7 +361,6 @@ const Index = () => {
                       >
                         <Heart size={16} />
                       </button>
->>>>>>> 51c025eaf1517dc66c6f5bf3312cd716962793c7
                     </div>
                   </div>
                 </div>
