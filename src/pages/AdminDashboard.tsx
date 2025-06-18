@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -129,7 +129,6 @@ const AdminDashboard = () => {
             author: book.book_author,
             price: book.price,
             image_url: book.image_url,
-            condition: book.condition
           }]);
 
         if (insertError) throw insertError;

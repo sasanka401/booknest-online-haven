@@ -42,7 +42,7 @@ const Auth = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isSignup) {
-      signup(form.name, form.email, form.password);
+      signup(form.email, form.password);
     } else {
       setLoginTimer(performance.now());
       login(form.email, form.password);

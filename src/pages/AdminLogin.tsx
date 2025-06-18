@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -17,7 +18,10 @@ const adminSchema = z.object({
   }),
 });
 
-type AdminLoginForm = z.infer<typeof adminSchema>;
+type AdminLoginForm = {
+  adminId: string;
+  password: string;
+};
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -90,4 +94,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin; 
+export default AdminLogin;

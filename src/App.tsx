@@ -21,6 +21,8 @@ import OrderHistory from "./pages/OrderHistory";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -72,6 +74,8 @@ function App() {
                     <OrderHistory />
                   </PrivateRoute>
                 } />
+                <Route path="/admin" element={<AdminLogin />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </OrderProvider>
