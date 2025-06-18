@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import {
   Pagination,
@@ -14,19 +13,21 @@ import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { ShoppingCart, Heart, IndianRupee } from "lucide-react";
-import { useBooks } from "@/integrations/supabase/useBooks";
+import { useBooks } from "@/hooks/useBooks";
 
-// Book data type updated to match mock backend and useBooks hook
+// Book data type updated to match Supabase schema
 interface Book {
-  id: number;
+  id: string;
   title: string;
   author: string;
+  description: string | null;
   price: number;
   image_url: string | null;
+  stock: number;
   rating: number | null;
-  language: string | null; // Now required as per mock data
-  stock: number; // Added stock to match mock data
-  created_at: string; // Added created_at to match mock data
+  language: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 // Add this new component at the top of the file, after the imports
@@ -91,8 +92,8 @@ const Index = () => {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  // Fetch books from mock backend
-  const { books, isLoading, error } = useBooks();
+  // Fetch books from Supabase
+  const { books, loading: isLoading, error } = useBooks();
 
   // Group books by language
   const booksByLanguage = (books || []).reduce(
@@ -107,27 +108,49 @@ const Index = () => {
 
   // Generate rating stars
   const renderStars = (rating: number | null) => {
-    if (!rating) return (
-      <>
-        {[...Array(5)].map((_, i) => (
-          <span key={`star-empty-${i}`} className="text-gray-300">☆</span>
+    if (!rating) {
+      return (
+        <div className="flex items-center">
+          {[...Array(5)].map((_, i) => (
+            <svg key={`empty-${i}`} className="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          ))}
+        </div>
+      );
+    }
+
+    const numRating = rating as number;
+    const fullStars = Math.floor(numRating);
+    const decimalPart = numRating - fullStars;
+    const hasHalfStar = decimalPart >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+    return (
+      <div className="flex items-center">
+        {[...Array(fullStars)].map((_, i) => (
+          <svg key={`full-${i}`} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
         ))}
-      </>
+        {hasHalfStar && (
+          <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+            <defs>
+              <linearGradient id="halfStar">
+                <stop offset="50%" stopColor="currentColor" />
+                <stop offset="50%" stopColor="#E5E7EB" />
+              </linearGradient>
+            </defs>
+            <path fill="url(#halfStar)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+        )}
+        {[...Array(emptyStars)].map((_, i) => (
+          <svg key={`empty-${i}`} className="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+        ))}
+      </div>
     );
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<span key={`star-${i}`} className="rating-star">★</span>);
-    }
-    if (hasHalfStar) {
-      stars.push(<span key="half-star" className="rating-star">☆</span>);
-    }
-    const emptyStars = 5 - stars.length;
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<span key={`empty-${i}`} className="text-gray-300">☆</span>);
-    }
-    return stars;
   };
 
   const handleAddToCart = (book: Book) => {

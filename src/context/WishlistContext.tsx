@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 // Book type definition from the existing app
 interface Book {
-  id: number;
+  id: string;
   title: string;
   author: string;
   price: number;
@@ -15,8 +15,8 @@ interface Book {
 interface WishlistContextType {
   wishlistItems: Book[];
   addToWishlist: (book: Book) => void;
-  removeFromWishlist: (bookId: number) => void;
-  isInWishlist: (bookId: number) => boolean;
+  removeFromWishlist: (bookId: string) => void;
+  isInWishlist: (bookId: string) => boolean;
   getWishlistCount: () => number;
 }
 
@@ -52,7 +52,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const removeFromWishlist = (bookId: number) => {
+  const removeFromWishlist = (bookId: string) => {
     setWishlistItems((prevItems) => {
       const newItems = prevItems.filter((item) => item.id !== bookId);
       const removedItem = prevItems.find((item) => item.id === bookId);
@@ -63,7 +63,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const isInWishlist = (bookId: number) => {
+  const isInWishlist = (bookId: string) => {
     return wishlistItems.some((item) => item.id === bookId);
   };
 

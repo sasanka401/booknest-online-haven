@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 // Book type definition from the existing app
 interface Book {
-  id: number;
+  id: string;
   title: string;
   author: string;
   price: number;
@@ -20,8 +20,8 @@ interface CartItem extends Book {
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (book: Book) => void;
-  removeFromCart: (bookId: number) => void;
-  updateQuantity: (bookId: number, quantity: number) => void;
+  removeFromCart: (bookId: string) => void;
+  updateQuantity: (bookId: string, quantity: number) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
@@ -66,7 +66,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const removeFromCart = (bookId: number) => {
+  const removeFromCart = (bookId: string) => {
     setCartItems((prevItems) => {
       const newItems = prevItems.filter((item) => item.id !== bookId);
       const removedItem = prevItems.find((item) => item.id === bookId);
@@ -77,7 +77,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const updateQuantity = (bookId: number, quantity: number) => {
+  const updateQuantity = (bookId: string, quantity: number) => {
     if (quantity < 1) return;
     
     setCartItems((prevItems) => {

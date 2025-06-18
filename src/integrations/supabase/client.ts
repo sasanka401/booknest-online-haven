@@ -40,10 +40,54 @@ export const supabase = {
           // Mock data for common tables
           if (tableName === 'books') {
             const mockBooks = JSON.parse(localStorage.getItem('mockBooks') || '[]') || [
-              { id: 1, title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', price: 25.00, image_url: 'https://images-na.ssl-images-amazon.com/images/I/41K-vF7NhmL._SX331_BO1,204,203,200_.jpg', rating: 4.5, stock: 10, language: 'English', created_at: new Date().toISOString() },
-              { id: 2, title: '1984', author: 'George Orwell', price: 18.50, image_url: 'https://images-na.ssl-images-amazon.com/images/I/41-D9E2F-6L._SX331_BO1,204,203,200_.jpg', rating: 4.8, stock: 5, language: 'English', created_at: new Date().toISOString() },
-              { id: 3, title: 'To Kill a Mockingbird', author: 'Harper Lee', price: 22.00, image_url: 'https://images-na.ssl-images-amazon.com/images/I/413J7o6g4UL._SX331_BO1,204,203,200_.jpg', rating: 4.7, stock: 12, language: 'English', created_at: new Date().toISOString() },
-              { id: 4, title: 'Pride and Prejudice', author: 'Jane Austen', price: 15.75, image_url: 'https://images-na.ssl-images-amazon.com/images/I/415o9f8zNGL._SX331_BO1,204,203,200_.jpg', rating: 4.6, stock: 8, language: 'English', created_at: new Date().toISOString() },
+              { 
+                id: '1', 
+                title: 'The Great Gatsby', 
+                author: 'F. Scott Fitzgerald', 
+                price: 25.00, 
+                image_url: 'https://images-na.ssl-images-amazon.com/images/I/41K-vF7NhmL._SX331_BO1,204,203,200_.jpg', 
+                rating: 4.50, 
+                stock: 10, 
+                language: 'English', 
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              },
+              { 
+                id: '2', 
+                title: '1984', 
+                author: 'George Orwell', 
+                price: 18.50, 
+                image_url: 'https://images-na.ssl-images-amazon.com/images/I/41-D9E2F-6L._SX331_BO1,204,203,200_.jpg', 
+                rating: 4.80, 
+                stock: 5, 
+                language: 'English', 
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              },
+              { 
+                id: '3', 
+                title: 'To Kill a Mockingbird', 
+                author: 'Harper Lee', 
+                price: 22.00, 
+                image_url: 'https://images-na.ssl-images-amazon.com/images/I/413J7o6g4UL._SX331_BO1,204,203,200_.jpg', 
+                rating: 4.70, 
+                stock: 12, 
+                language: 'English', 
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              },
+              { 
+                id: '4', 
+                title: 'Pride and Prejudice', 
+                author: 'Jane Austen', 
+                price: 15.75, 
+                image_url: 'https://images-na.ssl-images-amazon.com/images/I/415o9f8zNGL._SX331_BO1,204,203,200_.jpg', 
+                rating: 4.60, 
+                stock: 8, 
+                language: 'English', 
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              },
             ];
             localStorage.setItem('mockBooks', JSON.stringify(mockBooks));
             return callback({ data: mockBooks, error: null });
