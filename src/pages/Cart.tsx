@@ -56,7 +56,7 @@ const Cart = () => {
                 <div key={item.id} className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 border-b items-center">
                   <div className="col-span-1 md:col-span-3 flex gap-4">
                     <img 
-                      src={item.imageUrl} 
+                      src={item.image_url} 
                       alt={item.title} 
                       className="w-16 h-24 object-cover rounded"
                     />

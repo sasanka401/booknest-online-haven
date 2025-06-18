@@ -1,3 +1,4 @@
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 
 const formSchema = z.object({
@@ -83,27 +84,9 @@ const ResellBooks = () => {
     try {
       let imageUrl = null;
 
-      // Upload image if selected
-      if (selectedFile) {
-        const fileExt = selectedFile.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `resell-books/${fileName}`;
-
-        const { error: uploadError, data: uploadData } = await supabase.storage
-          .from('book-images')
-          .upload(filePath, selectedFile);
-
-        if (uploadError) {
-          throw new Error('Failed to upload image');
-        }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('book-images')
-          .getPublicUrl(filePath);
-
-        imageUrl = publicUrl;
-      }
-
+      // Note: Storage functionality would require setting up storage bucket first
+      // For now, we'll skip image upload and just save the text data
+      
       // Insert book listing into resell_books table
       const { error: insertError } = await supabase
         .from('resell_books')
@@ -279,7 +262,7 @@ const ResellBooks = () => {
                     </div>
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Upload a clear image of your book. Max size: 5MB
+                    Upload a clear image of your book. Max size: 5MB (Note: Image upload requires storage setup)
                   </p>
                 </div>
                 

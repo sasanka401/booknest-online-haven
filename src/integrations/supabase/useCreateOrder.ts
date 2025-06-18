@@ -1,5 +1,5 @@
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 
 interface OrderItemInput {
   book_id: number;
@@ -38,6 +38,7 @@ export async function createOrder(order: OrderInput) {
     .select()
     .single();
   if (error) throw error;
+  
   // Insert order items
   const orderItems = order.order_items.map(item => ({
     order_id: insertedOrder.id,

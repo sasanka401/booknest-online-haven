@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
@@ -64,7 +65,7 @@ const CheckoutPage = () => {
           author: item.author,
           price: item.price,
           quantity: item.quantity,
-          imageUrl: item.imageUrl
+          imageUrl: item.image_url
         })),
         shippingAddress: {
           fullName: shippingData!.fullName,
