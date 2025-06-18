@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 
 export interface Book {
   id: string;
@@ -34,7 +34,16 @@ export function useBooks() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setBooks(data || []);
+      
+      // Convert the data to match our Book interface
+      const booksData = data?.map(book => ({
+        ...book,
+        id: book.id.toString(), // Convert to string for consistency
+        created_at: book.created_at || new Date().toISOString(),
+        updated_at: book.updated_at || new Date().toISOString()
+      })) || [];
+      
+      setBooks(booksData);
     } catch (err) {
       console.error('Error fetching books:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -64,7 +73,7 @@ export function useBooks() {
       const { data, error } = await supabase
         .from('books')
         .update(updates)
-        .eq('id', id)
+        .eq('id', parseInt(id))
         .select()
         .single();
 
@@ -82,7 +91,7 @@ export function useBooks() {
       const { error } = await supabase
         .from('books')
         .delete()
-        .eq('id', id);
+        .eq('id', parseInt(id));
 
       if (error) throw error;
       await fetchBooks(); // Refresh the list
