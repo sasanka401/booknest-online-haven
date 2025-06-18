@@ -1,52 +1,90 @@
-# Welcome to your Lovable project
+# GyanVidya 📚
 
-## Project info
+A modern e-commerce platform for book lovers, built with cutting-edge web technologies.
 
-**URL**: https://lovable.dev/projects/0b3e5c57-3373-4429-b866-d219197cca34
+## 🌟 Features
 
+- **Multi-language Support**: Browse books in English, Hindi, and Assamese
+- **Smart Book Discovery**: Find your next read with our intuitive search and filtering
+- **User Authentication**: Secure login and registration system
+- **Personalized Experience**: 
+  - Wishlist functionality
+  - Shopping cart management
+  - Book ratings and reviews
+- **Responsive Design**: Seamless experience across all devices
+- **Real-time Updates**: Instant cart and wishlist synchronization
 
-Follow these steps:
+## 🛠️ Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Frontend Framework**: React with TypeScript
+- **Build Tool**: Vite
+- **Styling**: 
+  - Tailwind CSS for utility-first styling
+  - shadcn/ui for beautiful, accessible components
+- **State Management**: React Context API
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🚀 Getting Started
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Prerequisites
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+- Node.js (v16 or higher)
+- npm or yarn
+- Git
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/sasanka401/booknest-online-haven/tree/main
+cd booknest-online-haven
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
+Fill in your Supabase credentials in the `.env` file.
+
+4. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The application will be available at `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📁 Project Structure
 
-**Use GitHub Codespaces**
+```
+booknest-online-haven/
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── context/       # React context providers
+│   ├── hooks/         # Custom React hooks
+│   ├── integrations/  # Third-party integrations
+│   ├── lib/          # Utility functions and configurations
+│   ├── pages/        # Page components
+│   └── types/        # TypeScript type definitions
+├── public/           # Static assets
+└── tests/           # Test files
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🔧 Development
 
-## What technologies are used for this project?
+## 👥 Authors
 
-This project is built with:
+- Sasanka Talukdar & Ankur Hazarika - Initial work - [sasanka401](https://github.com/sasanka401)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🙏 Acknowledgments
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/0b3e5c57-3373-4429-b866-d219197cca34) and click on Share -> Publish.
+- [Supabase](https://supabase.io/) for the backend infrastructure
+- [shadcn/ui](https://ui.shadcn.com/) for the beautiful components
+- [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
 
 
