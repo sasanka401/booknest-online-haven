@@ -198,6 +198,41 @@ export type Database = {
         }
         Relationships: []
       }
+      user_carts: {
+        Row: {
+          book_id: number
+          created_at: string | null
+          id: number
+          quantity: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          book_id: number
+          created_at?: string | null
+          id?: number
+          quantity?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          book_id?: number
+          created_at?: string | null
+          id?: number
+          quantity?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_carts_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null

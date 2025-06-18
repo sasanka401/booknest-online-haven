@@ -1,6 +1,8 @@
 
-import { createContext, useState, useContext, ReactNode } from "react";
+import { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "./AuthContext";
 
 // Book type definition from the existing app
 interface Book {
@@ -19,6 +21,7 @@ interface WishlistContextType {
   removeFromWishlist: (bookId: string) => void;
   isInWishlist: (bookId: string) => boolean;
   getWishlistCount: () => number;
+  loading: boolean;
 }
 
 // Create the context
@@ -26,42 +29,121 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 
 // Provider component
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
-  const [wishlistItems, setWishlistItems] = useState<Book[]>(() => {
-    const savedWishlist = localStorage.getItem("wishlist");
-    return savedWishlist ? JSON.parse(savedWishlist) : [];
-  });
+  const [wishlistItems, setWishlistItems] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
-  // Save to localStorage whenever wishlist changes
-  const saveWishlist = (items: Book[]) => {
-    localStorage.setItem("wishlist", JSON.stringify(items));
-    return items;
+  // Fetch wishlist items from database when user changes
+  useEffect(() => {
+    if (user) {
+      fetchWishlistItems();
+    } else {
+      setWishlistItems([]);
+    }
+  }, [user]);
+
+  const fetchWishlistItems = async () => {
+    if (!user) return;
+    
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('wishlists')
+        .select(`
+          books!inner(
+            id,
+            title,
+            author,
+            price,
+            image_url,
+            rating
+          )
+        `)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      const wishlistData = data?.map(item => ({
+        id: item.books.id.toString(),
+        title: item.books.title,
+        author: item.books.author,
+        price: item.books.price,
+        image_url: item.books.image_url,
+        rating: item.books.rating
+      })) || [];
+
+      setWishlistItems(wishlistData);
+    } catch (error) {
+      console.error('Error fetching wishlist items:', error);
+      toast.error('Failed to load wishlist items');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const addToWishlist = (book: Book) => {
-    setWishlistItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === book.id);
-      
+  const addToWishlist = async (book: Book) => {
+    if (!user) {
+      toast.error('Please login to add items to wishlist');
+      return;
+    }
+
+    try {
+      // Check if item already exists in wishlist
+      const { data: existingItem } = await supabase
+        .from('wishlists')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('book_id', parseInt(book.id))
+        .single();
+
       if (existingItem) {
-        // If item already exists, do nothing
         toast.info(`"${book.title}" is already in your wishlist`);
-        return prevItems;
-      } else {
-        // If item doesn't exist, add it
-        toast.success(`Added "${book.title}" to your wishlist`);
-        return saveWishlist([...prevItems, book]);
+        return;
       }
-    });
+
+      // Insert new item
+      const { error } = await supabase
+        .from('wishlists')
+        .insert({
+          user_id: user.id,
+          book_id: parseInt(book.id)
+        });
+
+      if (error) throw error;
+
+      toast.success(`Added "${book.title}" to your wishlist`);
+      
+      // Refresh wishlist items
+      await fetchWishlistItems();
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      toast.error('Failed to add item to wishlist');
+    }
   };
 
-  const removeFromWishlist = (bookId: string) => {
-    setWishlistItems((prevItems) => {
-      const newItems = prevItems.filter((item) => item.id !== bookId);
-      const removedItem = prevItems.find((item) => item.id === bookId);
+  const removeFromWishlist = async (bookId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('wishlists')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('book_id', parseInt(bookId));
+
+      if (error) throw error;
+
+      const removedItem = wishlistItems.find(item => item.id === bookId);
       if (removedItem) {
         toast.info(`Removed "${removedItem.title}" from your wishlist`);
       }
-      return saveWishlist(newItems);
-    });
+
+      // Refresh wishlist items
+      await fetchWishlistItems();
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      toast.error('Failed to remove item from wishlist');
+    }
   };
 
   const isInWishlist = (bookId: string) => {
@@ -80,6 +162,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
         removeFromWishlist,
         isInWishlist,
         getWishlistCount,
+        loading,
       }}
     >
       {children}
