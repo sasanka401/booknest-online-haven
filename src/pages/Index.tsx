@@ -11,8 +11,7 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
-import { ShoppingCart, Heart, IndianRupee } from "lucide-react";
+import { ShoppingCart, IndianRupee } from "lucide-react";
 import AdminDashboard from "@/pages/AdminDashboard";
 import { useBooks } from "@/integrations/supabase/useBooks";
 
@@ -87,7 +86,6 @@ const ScrollToTop = () => {
 const Index = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const { addToCart } = useCart();
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
   // Fetch books from Supabase
   const { data: books, isLoading, error } = useBooks();
@@ -135,19 +133,6 @@ const Index = () => {
       imageUrl: book.image_url || "/placeholder.svg"
     };
     addToCart(cartBook);
-  };
-
-  const handleToggleWishlist = (book: Book) => {
-    if (isInWishlist(book.id)) {
-      removeFromWishlist(book.id);
-    } else {
-      // Transform the book to match wishlist context expectations
-      const wishlistBook = {
-        ...book,
-        imageUrl: book.image_url || "/placeholder.svg"
-      };
-      addToWishlist(wishlistBook);
-    }
   };
 
   // Scroll animations (can skip for brevity in code sample)
@@ -261,13 +246,6 @@ const Index = () => {
                         <ShoppingCart size={16} />
                         <span>Add to Cart</span>
                       </button>
-                      <button 
-                        className={`add-to-wishlist ${isInWishlist(book.id) ? 'text-red-500' : 'text-gray-400'}`}
-                        onClick={() => handleToggleWishlist(book)}
-                        aria-label={isInWishlist(book.id) ? "Remove from wishlist" : "Add to wishlist"}
-                      >
-                        <Heart size={20} fill={isInWishlist(book.id) ? "currentColor" : "none"} />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -308,13 +286,6 @@ const Index = () => {
                         <ShoppingCart size={16} />
                         <span>Add to Cart</span>
                       </button>
-                      <button 
-                        className={`add-to-wishlist ${isInWishlist(book.id) ? 'text-red-500' : 'text-gray-400'}`}
-                        onClick={() => handleToggleWishlist(book)}
-                        aria-label={isInWishlist(book.id) ? "Remove from wishlist" : "Add to wishlist"}
-                      >
-                        <Heart size={20} fill={isInWishlist(book.id) ? "currentColor" : "none"} />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -354,13 +325,6 @@ const Index = () => {
                         <ShoppingCart size={16} />
                         <span>Add to Cart</span>
                       </button>
-                      <button 
-                        className={`add-to-wishlist ${isInWishlist(book.id) ? 'text-red-500' : 'text-gray-400'}`}
-                        onClick={() => handleToggleWishlist(book)}
-                        aria-label={isInWishlist(book.id) ? "Remove from wishlist" : "Add to wishlist"}
-                      >
-                        <Heart size={20} fill={isInWishlist(book.id) ? "currentColor" : "none"} />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -399,13 +363,6 @@ const Index = () => {
                       >
                         <ShoppingCart size={16} />
                         <span>Add to Cart</span>
-                      </button>
-                      <button 
-                        className={`add-to-wishlist ${isInWishlist(book.id) ? 'text-red-500' : 'text-gray-400'}`}
-                        onClick={() => handleToggleWishlist(book)}
-                        aria-label={isInWishlist(book.id) ? "Remove from wishlist" : "Add to wishlist"}
-                      >
-                        <Heart size={20} fill={isInWishlist(book.id) ? "currentColor" : "none"} />
                       </button>
                     </div>
                   </div>

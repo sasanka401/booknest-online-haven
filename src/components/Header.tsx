@@ -1,9 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
-import { ShoppingCart, MapPin, Package, Bell, Heart, UserRound, LogOut } from "lucide-react";
+import { ShoppingCart, MapPin, Package, Bell, UserRound, LogOut } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -27,7 +25,6 @@ interface Notification {
 const Header = () => {
   const location = useLocation();
   const { getTotalItems } = useCart();
-  const { getWishlistCount } = useWishlist();
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -111,7 +108,7 @@ const Header = () => {
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <Link to="/resell" className={cn("px-4 py-2 flex items-center", location.pathname === "/resell" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
+              <Link to="/resell-books" className={cn("px-4 py-2 flex items-center", location.pathname === "/resell-books" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
                 <Package size={18} className="mr-1" />
                 Resell Books
               </Link>
@@ -148,18 +145,6 @@ const Header = () => {
                 {getTotalItems() > 0 && (
                   <span className="absolute -top-2 -right-3 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {getTotalItems()}
-                  </span>
-                )}
-              </Link>
-            </li>
-
-            <li className="hidden md:block">
-              <Link to="/wishlist" className={cn("relative flex items-center ml-4", location.pathname === "/wishlist" ? "text-primary font-medium" : "text-gray-600 hover:text-primary")}>
-                <Heart className="mr-1" size={18} />
-                <span>Wishlist</span>
-                {getWishlistCount() > 0 && (
-                  <span className="absolute -top-2 -right-3 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {getWishlistCount()}
                   </span>
                 )}
               </Link>

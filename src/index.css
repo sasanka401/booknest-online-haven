@@ -175,10 +175,6 @@
   @apply text-sm bg-primary text-white px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors flex items-center;
 }
 
-.add-to-wishlist {
-  @apply text-gray-400 hover:text-red-500 transition-colors;
-}
-
 /* Footer */
 .site-footer {
   @apply bg-gray-800 text-white pt-10 pb-6;

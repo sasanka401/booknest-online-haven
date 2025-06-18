@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -17,8 +16,9 @@ const Footer = () => {
               <li><Link to="/cart">Cart</Link></li>
               <li><Link to="/login">Login</Link></li>
               <li><Link to="/signup">Sign Up</Link></li>
-              <li><Link to="/resell">Resell Books</Link></li>
+              <li><Link to="/resell-books">Resell Books</Link></li>
               <li><Link to="/nearby-bookstores">Nearby Bookstores</Link></li>
+              <li><Link to="/admin">Admin Panel</Link></li>
             </ul>
           </div>
           <div className="footer-section">

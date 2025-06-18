@@ -23,6 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
@@ -43,6 +45,8 @@ type FormValues = z.infer<typeof formSchema>;
 const ResellBooks = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { user } = useAuth();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -60,6 +64,7 @@ const ResellBooks = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -68,17 +73,66 @@ const ResellBooks = () => {
     }
   };
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
+    if (!user) {
+      toast.error("Please sign in to list a book for resale");
+      return;
+    }
+
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Form data:", data);
-      toast.success("Your book listing has been submitted for review!");
+    try {
+      let imageUrl = null;
+
+      // Upload image if selected
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `resell-books/${fileName}`;
+
+        const { error: uploadError, data: uploadData } = await supabase.storage
+          .from('book-images')
+          .upload(filePath, selectedFile);
+
+        if (uploadError) {
+          throw new Error('Failed to upload image');
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('book-images')
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrl;
+      }
+
+      // Insert book listing into resell_books table
+      const { error: insertError } = await supabase
+        .from('resell_books')
+        .insert([
+          {
+            book_title: data.title,
+            book_author: data.author,
+            price: parseFloat(data.price),
+            description: data.description,
+            condition: data.condition,
+            image_url: imageUrl,
+            seller_id: user.id,
+          }
+        ]);
+
+      if (insertError) {
+        throw new Error(insertError.message);
+      }
+
+      toast.success("Your book listing has been submitted successfully!");
       form.reset();
       setImagePreview(null);
+      setSelectedFile(null);
+    } catch (error) {
+      console.error('Error submitting book listing:', error);
+      toast.error("Failed to submit book listing. Please try again.");
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   return (
