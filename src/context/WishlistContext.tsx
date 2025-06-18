@@ -1,11 +1,10 @@
 
-import { createContext, useState, useContext, ReactNode, useEffect } from "react";
-import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
-import { useAuth } from "./AuthContext";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from './AuthContext';
+import { toast } from 'sonner';
 
-// Book type definition from the existing app
-interface Book {
+export interface Book {
   id: string;
   title: string;
   author: string;
@@ -14,26 +13,21 @@ interface Book {
   rating: number;
 }
 
-// Context type definition
 interface WishlistContextType {
   wishlistItems: Book[];
-  addToWishlist: (book: Book) => void;
-  removeFromWishlist: (bookId: string) => void;
+  addToWishlist: (book: Book) => Promise<void>;
+  removeFromWishlist: (bookId: string) => Promise<void>;
   isInWishlist: (bookId: string) => boolean;
-  getWishlistCount: () => number;
   loading: boolean;
 }
 
-// Create the context
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
-// Provider component
-export const WishlistProvider = ({ children }: { children: ReactNode }) => {
+export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [wishlistItems, setWishlistItems] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
-  // Fetch wishlist items from database when user changes
   useEffect(() => {
     if (user) {
       fetchWishlistItems();
@@ -44,7 +38,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchWishlistItems = async () => {
     if (!user) return;
-    
+
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -88,20 +82,6 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      // Check if item already exists in wishlist
-      const { data: existingItem } = await supabase
-        .from('wishlists')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('book_id', parseInt(book.id))
-        .single();
-
-      if (existingItem) {
-        toast.info(`"${book.title}" is already in your wishlist`);
-        return;
-      }
-
-      // Insert new item
       const { error } = await supabase
         .from('wishlists')
         .insert({
@@ -109,12 +89,16 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
           book_id: parseInt(book.id)
         });
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505') { // Unique constraint violation
+          toast.info(`"${book.title}" is already in your wishlist`);
+          return;
+        }
+        throw error;
+      }
 
       toast.success(`Added "${book.title}" to your wishlist`);
-      
-      // Refresh wishlist items
-      await fetchWishlistItems();
+      await fetchWishlistItems(); // Refresh the wishlist
     } catch (error) {
       console.error('Error adding to wishlist:', error);
       toast.error('Failed to add item to wishlist');
@@ -138,8 +122,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
         toast.info(`Removed "${removedItem.title}" from your wishlist`);
       }
 
-      // Refresh wishlist items
-      await fetchWishlistItems();
+      await fetchWishlistItems(); // Refresh the wishlist
     } catch (error) {
       console.error('Error removing from wishlist:', error);
       toast.error('Failed to remove item from wishlist');
@@ -147,34 +130,26 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const isInWishlist = (bookId: string) => {
-    return wishlistItems.some((item) => item.id === bookId);
-  };
-
-  const getWishlistCount = () => {
-    return wishlistItems.length;
+    return wishlistItems.some(item => item.id === bookId);
   };
 
   return (
-    <WishlistContext.Provider
-      value={{
-        wishlistItems,
-        addToWishlist,
-        removeFromWishlist,
-        isInWishlist,
-        getWishlistCount,
-        loading,
-      }}
-    >
+    <WishlistContext.Provider value={{
+      wishlistItems,
+      addToWishlist,
+      removeFromWishlist,
+      isInWishlist,
+      loading
+    }}>
       {children}
     </WishlistContext.Provider>
   );
 };
 
-// Custom hook to use the wishlist context
 export const useWishlist = () => {
   const context = useContext(WishlistContext);
   if (context === undefined) {
-    throw new Error("useWishlist must be used within a WishlistProvider");
+    throw new Error('useWishlist must be used within a WishlistProvider');
   }
   return context;
 };

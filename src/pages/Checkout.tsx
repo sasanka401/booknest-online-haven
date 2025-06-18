@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
@@ -11,10 +12,12 @@ import ShippingForm from "@/components/checkout/ShippingForm";
 import PaymentForm from "@/components/checkout/PaymentForm";
 import { ShippingFormValues, PaymentFormValues } from "@/components/checkout/validation-schemas";
 import { useOrder } from '@/context/OrderContext';
+import { supabase } from "@/lib/supabase";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { cartItems, getTotalPrice, clearCart } = useCart();
+  const { user } = useAuth();
   const [shippingMethod, setShippingMethod] = useState("standard");
   const [checkoutStep, setCheckoutStep] = useState<"shipping" | "payment" | "confirmation">("shipping");
   const [shippingData, setShippingData] = useState<ShippingFormValues | null>(null);
@@ -36,8 +39,9 @@ const CheckoutPage = () => {
     setCheckoutStep("shipping");
   };
 
-  const handlePaymentSubmit = (values: PaymentFormValues) => {
-    // In a real app, this would connect to a payment processor
+  const handlePaymentSubmit = async (values: PaymentFormValues) => {
+    if (!user || !shippingData) return;
+
     console.log("Payment form submitted with values:", values);
     console.log("Shipping data:", shippingData);
     
@@ -53,14 +57,63 @@ const CheckoutPage = () => {
     const paymentMethod = values.paymentMethod || "credit-card";
     toast.info(paymentMethodMessages[paymentMethod as keyof typeof paymentMethodMessages] || "Processing payment...");
     
-    setTimeout(() => {
-      // Create order data
-      const orderData = {
-        orderNumber: Math.floor(Math.random() * 1000000).toString().padStart(6, "0"),
+    try {
+      // Generate order number
+      const orderNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, "0");
+      
+      // Calculate totals
+      const subtotal = getTotalPrice();
+      const shipping = getShippingCost();
+      const total = subtotal + shipping;
+
+      // Create order in database
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          order_number: orderNumber,
+          user_id: user.id,
+          status: 'Processing',
+          shipping_address: {
+            fullName: shippingData.fullName,
+            address: shippingData.address,
+            city: shippingData.city,
+            state: shippingData.state,
+            pinCode: shippingData.pinCode,
+            phone: shippingData.phoneNumber,
+            email: shippingData.email
+          },
+          payment_method: values.paymentMethod || "credit-card",
+          shipping_method: shippingMethod,
+          subtotal: subtotal,
+          shipping: shipping,
+          total: total
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = cartItems.map(item => ({
+        order_id: orderData.id,
+        book_id: parseInt(item.id),
+        quantity: item.quantity,
+        price: item.price
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // Create order data for context
+      const orderContextData = {
+        orderNumber: orderNumber,
         orderDate: new Date().toLocaleDateString(),
         status: "Processing",
         items: cartItems.map(item => ({
-          id: parseInt(item.id), // Convert string ID to number for order context
+          id: parseInt(item.id),
           title: item.title,
           author: item.author,
           price: item.price,
@@ -68,29 +121,33 @@ const CheckoutPage = () => {
           imageUrl: item.image_url
         })),
         shippingAddress: {
-          fullName: shippingData!.fullName,
-          address: shippingData!.address,
-          city: shippingData!.city,
-          state: shippingData!.state,
-          pinCode: shippingData!.pinCode,
-          phone: shippingData!.phoneNumber,
-          email: shippingData!.email
+          fullName: shippingData.fullName,
+          address: shippingData.address,
+          city: shippingData.city,
+          state: shippingData.state,
+          pinCode: shippingData.pinCode,
+          phone: shippingData.phoneNumber,
+          email: shippingData.email
         },
         paymentMethod: values.paymentMethod || "credit-card",
         shippingMethod: shippingMethod,
-        subtotal: getTotalPrice(),
-        shipping: getShippingCost(),
-        total: getTotalPrice() + getShippingCost()
+        subtotal: subtotal,
+        shipping: shipping,
+        total: total
       };
 
-      // Save order data
-      setCurrentOrder(orderData);
-      addToOrderHistory(orderData);
+      // Save order data in context
+      setCurrentOrder(orderContextData);
+      addToOrderHistory(orderContextData);
       
       toast.success("Payment successful! Your order has been placed.");
-      clearCart();
+      await clearCart();
       navigate("/order-confirmation");
-    }, 2000);
+
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast.error('Failed to create order. Please try again.');
+    }
   };
 
   // Calculate shipping cost based on method

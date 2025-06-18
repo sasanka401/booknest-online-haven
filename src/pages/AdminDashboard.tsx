@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
@@ -12,13 +13,20 @@ interface Order {
   order_number: string;
   order_date: string;
   status: string;
+  user_id: string;
   shipping_address: {
-    name: string;
+    fullName: string;
     address: string;
     city: string;
     state: string;
-    pincode: string;
+    pinCode: string;
+    phone: string;
+    email: string;
   };
+  payment_method: string;
+  shipping_method: string;
+  subtotal: number;
+  shipping: number;
   total: number;
 }
 
@@ -186,6 +194,9 @@ const AdminDashboard = () => {
                           Customer
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Payment Method
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Total
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -199,19 +210,25 @@ const AdminDashboard = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {orders.map((order) => (
                         <tr key={order.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {order.order_number}
+                          <td className="px-6 py-4 whitespace-nowrap font-medium">
+                            #{order.order_number}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {new Date(order.order_date).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4">
                             <div>
-                              <div className="font-medium">{order.shipping_address.name}</div>
+                              <div className="font-medium">{order.shipping_address.fullName}</div>
+                              <div className="text-sm text-gray-500">
+                                {order.shipping_address.email}
+                              </div>
                               <div className="text-sm text-gray-500">
                                 {order.shipping_address.city}, {order.shipping_address.state}
                               </div>
                             </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap capitalize">
+                            {order.payment_method.replace('-', ' ')}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             ₹{order.total.toFixed(2)}
@@ -240,6 +257,13 @@ const AdminDashboard = () => {
                           </td>
                         </tr>
                       ))}
+                      {orders.length === 0 && (
+                        <tr>
+                          <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                            No orders found
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
