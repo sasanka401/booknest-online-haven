@@ -12,11 +12,11 @@ const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCart();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   
-  const handleIncreaseQuantity = (id: number, currentQuantity: number) => {
+  const handleIncreaseQuantity = (id: string, currentQuantity: number) => {
     updateQuantity(id, currentQuantity + 1);
   };
   
-  const handleDecreaseQuantity = (id: number, currentQuantity: number) => {
+  const handleDecreaseQuantity = (id: string, currentQuantity: number) => {
     if (currentQuantity > 1) {
       updateQuantity(id, currentQuantity - 1);
     }

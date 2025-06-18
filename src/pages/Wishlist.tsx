@@ -16,7 +16,7 @@ const Wishlist = () => {
     addToCart(book);
   };
 
-  const handleRemoveFromWishlist = (bookId: number) => {
+  const handleRemoveFromWishlist = (bookId: string) => {
     removeFromWishlist(bookId);
   };
 

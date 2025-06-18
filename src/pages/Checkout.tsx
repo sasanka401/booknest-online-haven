@@ -60,7 +60,7 @@ const CheckoutPage = () => {
         orderDate: new Date().toLocaleDateString(),
         status: "Processing",
         items: cartItems.map(item => ({
-          id: item.id,
+          id: parseInt(item.id), // Convert string ID to number for order context
           title: item.title,
           author: item.author,
           price: item.price,
