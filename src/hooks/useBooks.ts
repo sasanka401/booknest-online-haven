@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
@@ -6,14 +7,12 @@ export interface Book {
   id: string;
   title: string;
   author: string;
-  description: string | null;
+  description?: string | null;
   price: number;
   image_url: string | null;
-  stock: number;
+  stock?: number;
   rating: number | null;
   language: string | null;
-  created_at: string;
-  updated_at: string;
 }
 
 export function useBooks() {
@@ -31,7 +30,7 @@ export function useBooks() {
       const { data, error } = await supabase
         .from('books')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('id', { ascending: false });
 
       if (error) throw error;
       
@@ -39,8 +38,6 @@ export function useBooks() {
       const booksData = data?.map(book => ({
         ...book,
         id: book.id.toString(), // Convert to string for consistency
-        created_at: book.created_at || new Date().toISOString(),
-        updated_at: book.updated_at || new Date().toISOString()
       })) || [];
       
       setBooks(booksData);
@@ -52,7 +49,7 @@ export function useBooks() {
     }
   };
 
-  const addBook = async (book: Omit<Book, 'id' | 'created_at' | 'updated_at'>) => {
+  const addBook = async (book: Omit<Book, 'id'>) => {
     try {
       const { data, error } = await supabase
         .from('books')
@@ -111,3 +108,4 @@ export function useBooks() {
     refreshBooks: fetchBooks,
   };
 }
+
