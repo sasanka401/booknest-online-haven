@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface Book {
   id: string;
@@ -26,14 +27,25 @@ export function useBooks() {
 
   const fetchBooks = async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      const response = await supabase
         .from('books')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setBooks(data || []);
+      if (response.then) {
+        // Handle the mock client response
+        const result = await response.then((callback: any) => callback);
+        if (result.error) throw new Error(result.error.message);
+        setBooks(result.data || []);
+      } else {
+        // Handle real Supabase response
+        const { data, error } = response;
+        if (error) throw error;
+        setBooks(data || []);
+      }
     } catch (err) {
+      console.error('Error fetching books:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -42,15 +54,23 @@ export function useBooks() {
 
   const addBook = async (book: Omit<Book, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      const { data, error } = await supabase
+      const response = await supabase
         .from('books')
-        .insert([book])
-        .select()
-        .single();
+        .insert([book]);
 
-      if (error) throw error;
-      setBooks(prev => [data, ...prev]);
-      return data;
+      if (response.then) {
+        // Handle mock client
+        const result = await response;
+        if (result.error) throw new Error(result.error.message);
+        await fetchBooks(); // Refresh the list
+        return result.data;
+      } else {
+        // Handle real Supabase
+        const { data, error } = response;
+        if (error) throw error;
+        await fetchBooks(); // Refresh the list
+        return data;
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       throw err;
@@ -59,16 +79,23 @@ export function useBooks() {
 
   const updateBook = async (id: string, updates: Partial<Book>) => {
     try {
-      const { data, error } = await supabase
+      const response = await supabase
         .from('books')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
+        .update(updates);
 
-      if (error) throw error;
-      setBooks(prev => prev.map(book => book.id === id ? data : book));
-      return data;
+      if (response.then) {
+        // Handle mock client with eq method
+        const result = await response.update(updates, { eq: ['id', id] });
+        if (result.error) throw new Error(result.error.message);
+        await fetchBooks(); // Refresh the list
+        return result.data;
+      } else {
+        // Handle real Supabase
+        const { data, error } = await response.eq('id', id).select().single();
+        if (error) throw error;
+        await fetchBooks(); // Refresh the list
+        return data;
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       throw err;
@@ -77,13 +104,21 @@ export function useBooks() {
 
   const deleteBook = async (id: string) => {
     try {
-      const { error } = await supabase
+      const response = await supabase
         .from('books')
-        .delete()
-        .eq('id', id);
+        .delete();
 
-      if (error) throw error;
-      setBooks(prev => prev.filter(book => book.id !== id));
+      if (response.then) {
+        // Handle mock client
+        const result = await response;
+        if (result.error) throw new Error(result.error.message);
+        await fetchBooks(); // Refresh the list
+      } else {
+        // Handle real Supabase
+        const { error } = await response.eq('id', id);
+        if (error) throw error;
+        await fetchBooks(); // Refresh the list
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       throw err;
@@ -99,4 +134,4 @@ export function useBooks() {
     deleteBook,
     refreshBooks: fetchBooks,
   };
-} 
+}

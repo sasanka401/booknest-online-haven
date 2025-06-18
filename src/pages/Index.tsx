@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import {
   Pagination,
@@ -14,21 +15,6 @@ import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { ShoppingCart, Heart, IndianRupee } from "lucide-react";
 import { useBooks } from "@/hooks/useBooks";
-
-// Book data type updated to match Supabase schema
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  description: string | null;
-  price: number;
-  image_url: string | null;
-  stock: number;
-  rating: number | null;
-  language: string | null;
-  created_at: string;
-  updated_at: string;
-}
 
 // Add this new component at the top of the file, after the imports
 const ScrollToTop = () => {
@@ -92,12 +78,16 @@ const Index = () => {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  // Fetch books from Supabase
+  // Fetch books from Supabase using the corrected hook
   const { books, loading: isLoading, error } = useBooks();
+
+  console.log('Books data:', books); // Debug log
+  console.log('Loading state:', isLoading); // Debug log
+  console.log('Error state:', error); // Debug log
 
   // Group books by language
   const booksByLanguage = (books || []).reduce(
-    (acc: Record<string, Book[]>, book: Book) => {
+    (acc: Record<string, typeof books>, book) => {
       const lang = book.language?.toLowerCase() || "other";
       if (!acc[lang]) acc[lang] = [];
       acc[lang].push(book);
@@ -105,6 +95,8 @@ const Index = () => {
     },
     {}
   );
+
+  console.log('Books by language:', booksByLanguage); // Debug log
 
   // Generate rating stars
   const renderStars = (rating: number | null) => {
@@ -153,11 +145,11 @@ const Index = () => {
     );
   };
 
-  const handleAddToCart = (book: Book) => {
+  const handleAddToCart = (book: any) => {
     addToCart(book);
   };
 
-  const handleToggleWishlist = (book: Book) => {
+  const handleToggleWishlist = (book: any) => {
     if (isInWishlist(book.id)) {
       removeFromWishlist(book.id);
     } else {
@@ -165,7 +157,7 @@ const Index = () => {
     }
   };
 
-  // Scroll animations (can skip for brevity in code sample)
+  // Scroll animations
   useEffect(() => {
     if (books && books.length) {
       const handleIntersection = (entries: IntersectionObserverEntry[]) => {
@@ -248,7 +240,7 @@ const Index = () => {
           {isLoading && <div className="text-center my-12">Loading books...</div>}
           {error && (
             <div className="text-center text-red-500 my-12">
-              Error loading books. Please try again.
+              Error loading books: {error}
             </div>
           )}
           {!isLoading && !error && books && books.length > 0 && (
@@ -257,7 +249,7 @@ const Index = () => {
                 <div 
                   key={book.id} 
                   className="book-card opacity-0"
-                  style={{ animationDelay: `${book.id * 0.1}s` }}
+                  style={{ animationDelay: `${parseInt(book.id) * 0.1}s` }}
                 >
                   <img src={book.image_url ?? "/placeholder.svg"} alt={book.title} className="book-image" />
                   <div className="book-info">
@@ -285,14 +277,19 @@ const Index = () => {
               ))}
             </div>
           )}
+          {!isLoading && !error && (!books || books.length === 0) && (
+            <div className="text-center my-12">
+              <p>No books available at the moment.</p>
+            </div>
+          )}
         </div>
 
-        {/* Assamese Books Section */}
-        {booksByLanguage.assamese && booksByLanguage.assamese.length > 0 && (
-          <div className="container mt-12" id="assamese-books">
-            <h2 className="section-title text-center">Assamese Books</h2>
+        {/* English Books Section */}
+        {booksByLanguage.english && booksByLanguage.english.length > 0 && (
+          <div className="container mt-12" id="english-books">
+            <h2 className="section-title text-center">English Books</h2>
             <div className="book-grid">
-              {booksByLanguage.assamese.slice(0, 6).map((book) => (
+              {booksByLanguage.english.slice(0, 6).map((book) => (
                 <div key={book.id} className="book-card">
                   <img src={book.image_url ?? "/placeholder.svg"} alt={book.title} className="book-image" />
                   <div className="book-info">
@@ -357,12 +354,12 @@ const Index = () => {
           </div>
         )}
 
-        {/* English Books Section */}
-        {booksByLanguage.english && booksByLanguage.english.length > 0 && (
-          <div className="container mt-12" id="english-books">
-            <h2 className="section-title text-center">English Books</h2>
+        {/* Assamese Books Section */}
+        {booksByLanguage.assamese && booksByLanguage.assamese.length > 0 && (
+          <div className="container mt-12" id="assamese-books">
+            <h2 className="section-title text-center">Assamese Books</h2>
             <div className="book-grid">
-              {booksByLanguage.english.slice(0, 6).map((book) => (
+              {booksByLanguage.assamese.slice(0, 6).map((book) => (
                 <div key={book.id} className="book-card">
                   <img src={book.image_url ?? "/placeholder.svg"} alt={book.title} className="book-image" />
                   <div className="book-info">
