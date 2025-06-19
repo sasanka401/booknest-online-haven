@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -76,13 +75,15 @@ const Wishlist = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {wishlistItems.map((book) => (
               <div key={book.id} className="book-card relative">
-                <button
+                <Button
                   onClick={() => handleRemoveFromWishlist(book.id)}
-                  className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-50 z-10"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 z-10"
                   title="Remove from wishlist"
                 >
-                  <X size={16} className="text-gray-600" />
-                </button>
+                  <X size={16} />
+                </Button>
                 
                 <img 
                   src={book.image_url ?? "/placeholder.svg"} 
@@ -100,14 +101,14 @@ const Wishlist = () => {
                   <div className="book-rating">{renderStars(book.rating)}</div>
                   
                   <div className="flex gap-2 mt-4">
-                    <button 
+                    <Button 
                       onClick={() => handleAddToCart(book)} 
-                      className="btn-primary flex-grow" 
+                      className="flex-grow"
                       title="Add to Cart"
                     >
                       <ShoppingCart size={16} className="mr-2" />
                       Add to Cart
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>

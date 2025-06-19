@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import {
   Pagination,
@@ -15,6 +14,7 @@ import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { ShoppingCart, Heart, IndianRupee } from "lucide-react";
 import { useBooks } from "@/hooks/useBooks";
+import { Button } from "@/components/ui/button";
 
 // Add this new component at the top of the file, after the imports
 const ScrollToTop = () => {
@@ -261,16 +261,17 @@ const Index = () => {
                     </div>
                     <div className="book-rating">{renderStars(book.rating)}</div>
                     <div className="flex gap-2 mt-4">
-                      <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
+                      <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
-                      </button>
-                      <button 
+                      </Button>
+                      <Button 
                         onClick={() => handleToggleWishlist(book)} 
-                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
+                        size="icon"
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
                         <Heart size={16} />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -301,16 +302,17 @@ const Index = () => {
                     </div>
                     <div className="book-rating">{renderStars(book.rating)}</div>
                     <div className="flex gap-2 mt-4">
-                      <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
+                      <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
-                      </button>
-                      <button 
+                      </Button>
+                      <Button 
                         onClick={() => handleToggleWishlist(book)} 
-                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
+                        size="icon"
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
                         <Heart size={16} />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -336,16 +338,17 @@ const Index = () => {
                     </div>
                     <div className="book-rating">{renderStars(book.rating)}</div>
                     <div className="flex gap-2 mt-4">
-                      <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
+                      <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
-                      </button>
-                      <button 
+                      </Button>
+                      <Button 
                         onClick={() => handleToggleWishlist(book)} 
-                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
+                        size="icon"
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
                         <Heart size={16} />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -371,16 +374,17 @@ const Index = () => {
                     </div>
                     <div className="book-rating">{renderStars(book.rating)}</div>
                     <div className="flex gap-2 mt-4">
-                      <button onClick={() => handleAddToCart(book)} className="btn-primary flex-grow" title="Add to Cart">
+                      <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
-                      </button>
-                      <button 
+                      </Button>
+                      <Button 
                         onClick={() => handleToggleWishlist(book)} 
-                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
+                        size="icon"
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
                         <Heart size={16} />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
