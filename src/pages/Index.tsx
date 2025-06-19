@@ -264,14 +264,13 @@ const Index = () => {
                       <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </Button>
-                      <Button 
+                      <button 
                         onClick={() => handleToggleWishlist(book)} 
-                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
-                        size="icon"
+                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
                         <Heart size={16} />
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -305,14 +304,13 @@ const Index = () => {
                       <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </Button>
-                      <Button 
+                      <button 
                         onClick={() => handleToggleWishlist(book)} 
-                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
-                        size="icon"
+                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
                         <Heart size={16} />
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -341,14 +339,13 @@ const Index = () => {
                       <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </Button>
-                      <Button 
+                      <button 
                         onClick={() => handleToggleWishlist(book)} 
-                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
-                        size="icon"
+                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
                         <Heart size={16} />
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -377,14 +374,13 @@ const Index = () => {
                       <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </Button>
-                      <Button 
+                      <button 
                         onClick={() => handleToggleWishlist(book)} 
-                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
-                        size="icon"
+                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
                         <Heart size={16} />
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </div>
