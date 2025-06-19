@@ -40,10 +40,15 @@ const CheckoutPage = () => {
   };
 
   const handlePaymentSubmit = async (values: PaymentFormValues) => {
-    if (!user || !shippingData) return;
+    if (!user || !shippingData) {
+      toast.error('Please complete all required information');
+      return;
+    }
 
     console.log("Payment form submitted with values:", values);
     console.log("Shipping data:", shippingData);
+    console.log("User:", user);
+    console.log("Cart items:", cartItems);
     
     // Customize payment processing message based on the payment method
     const paymentMethodMessages = {
@@ -66,6 +71,14 @@ const CheckoutPage = () => {
       const shipping = getShippingCost();
       const total = subtotal + shipping;
 
+      console.log("Creating order with data:", {
+        orderNumber,
+        subtotal,
+        shipping,
+        total,
+        cartItems: cartItems.length
+      });
+
       // Create order in database
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
@@ -82,7 +95,7 @@ const CheckoutPage = () => {
             phone: shippingData.phoneNumber,
             email: shippingData.email
           },
-          payment_method: values.paymentMethod || "credit-card",
+          payment_method: paymentMethod,
           shipping_method: shippingMethod,
           subtotal: subtotal,
           shipping: shipping,
@@ -91,7 +104,12 @@ const CheckoutPage = () => {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('Order creation error:', orderError);
+        throw orderError;
+      }
+
+      console.log("Order created successfully:", orderData);
 
       // Create order items
       const orderItems = cartItems.map(item => ({
@@ -101,11 +119,18 @@ const CheckoutPage = () => {
         price: item.price
       }));
 
+      console.log("Creating order items:", orderItems);
+
       const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('Order items creation error:', itemsError);
+        throw itemsError;
+      }
+
+      console.log("Order items created successfully");
 
       // Create order data for context
       const orderContextData = {
@@ -129,7 +154,7 @@ const CheckoutPage = () => {
           phone: shippingData.phoneNumber,
           email: shippingData.email
         },
-        paymentMethod: values.paymentMethod || "credit-card",
+        paymentMethod: paymentMethod,
         shippingMethod: shippingMethod,
         subtotal: subtotal,
         shipping: shipping,
@@ -146,7 +171,11 @@ const CheckoutPage = () => {
 
     } catch (error) {
       console.error('Error creating order:', error);
-      toast.error('Failed to create order. Please try again.');
+      if (error instanceof Error) {
+        toast.error(`Failed to create order: ${error.message}`);
+      } else {
+        toast.error('Failed to create order. Please try again.');
+      }
     }
   };
 
