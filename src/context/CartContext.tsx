@@ -1,46 +1,36 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from './AuthContext';
+import { toast } from 'sonner';
 
-import { createContext, useState, useContext, ReactNode, useEffect } from "react";
-import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
-import { useAuth } from "./AuthContext";
-
-// Book type definition from the existing app
-interface Book {
+export interface CartItem {
   id: string;
   title: string;
   author: string;
   price: number;
+  quantity: number;
   image_url: string;
   rating: number;
 }
 
-// Cart item includes quantity
-interface CartItem extends Book {
-  quantity: number;
-}
-
-// Context type definition
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (book: Book) => void;
-  removeFromCart: (bookId: string) => void;
-  updateQuantity: (bookId: string, quantity: number) => void;
-  clearCart: () => void;
-  getTotalItems: () => number;
+  addToCart: (book: Omit<CartItem, 'quantity'>) => Promise<void>;
+  removeFromCart: (bookId: string) => Promise<void>;
+  updateQuantity: (bookId: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
   getTotalPrice: () => number;
+  getTotalItems: () => number;
   loading: boolean;
 }
 
-// Create the context
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// Provider component
-export const CartProvider = ({ children }: { children: ReactNode }) => {
+export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
-  // Fetch cart items from database when user changes
   useEffect(() => {
     if (user) {
       fetchCartItems();
@@ -51,7 +41,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchCartItems = async () => {
     if (!user) return;
-    
+
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -76,9 +66,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         title: item.books.title,
         author: item.books.author,
         price: item.books.price,
+        quantity: item.quantity,
         image_url: item.books.image_url,
-        rating: item.books.rating,
-        quantity: item.quantity
+        rating: item.books.rating
       })) || [];
 
       setCartItems(cartData);
@@ -90,36 +80,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addToCart = async (book: Book) => {
+  const addToCart = async (book: Omit<CartItem, 'quantity'>) => {
     if (!user) {
       toast.error('Please login to add items to cart');
       return;
     }
 
     try {
-      // Check if item already exists in cart
-      const { data: existingItem } = await supabase
-        .from('user_carts')
-        .select('quantity')
-        .eq('user_id', user.id)
-        .eq('book_id', parseInt(book.id))
-        .single();
+      // Check if the book is already in the cart
+      const existingCartItem = cartItems.find(item => item.id === book.id);
 
-      if (existingItem) {
-        // Update quantity if item exists
-        const { error } = await supabase
-          .from('user_carts')
-          .update({ 
-            quantity: existingItem.quantity + 1,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id)
-          .eq('book_id', parseInt(book.id));
-
-        if (error) throw error;
-        toast.success(`Added another copy of "${book.title}" to your cart`);
+      if (existingCartItem) {
+        // If it exists, update the quantity
+        await updateQuantity(book.id, existingCartItem.quantity + 1);
+        toast.success(`Increased quantity of "${book.title}" in your cart`);
       } else {
-        // Insert new item
+        // If it doesn't exist, add it to the cart with quantity 1
         const { error } = await supabase
           .from('user_carts')
           .insert({
@@ -129,11 +105,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           });
 
         if (error) throw error;
-        toast.success(`Added "${book.title}" to your cart`);
-      }
 
-      // Refresh cart items
-      await fetchCartItems();
+        setCartItems(prevItems => [...prevItems, { ...book, quantity: 1 }]);
+        toast.success(`Added "${book.title}" to your cart`);
+        await fetchCartItems(); // Refresh the cart
+      }
     } catch (error) {
       console.error('Error adding to cart:', error);
       toast.error('Failed to add item to cart');
@@ -157,8 +133,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         toast.info(`Removed "${removedItem.title}" from your cart`);
       }
 
-      // Refresh cart items
-      await fetchCartItems();
+      await fetchCartItems(); // Refresh the cart
     } catch (error) {
       console.error('Error removing from cart:', error);
       toast.error('Failed to remove item from cart');
@@ -166,22 +141,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateQuantity = async (bookId: string, quantity: number) => {
-    if (!user || quantity < 1) return;
+    if (!user) return;
 
     try {
+      if (quantity <= 0) {
+        await removeFromCart(bookId);
+        return;
+      }
+
       const { error } = await supabase
         .from('user_carts')
-        .update({ 
-          quantity,
-          updated_at: new Date().toISOString()
-        })
+        .update({ quantity: quantity })
         .eq('user_id', user.id)
         .eq('book_id', parseInt(bookId));
 
       if (error) throw error;
 
-      // Refresh cart items
-      await fetchCartItems();
+      setCartItems(prevItems =>
+        prevItems.map(item =>
+          item.id === bookId ? { ...item, quantity: quantity } : item
+        )
+      );
+      await fetchCartItems(); // Refresh the cart
     } catch (error) {
       console.error('Error updating quantity:', error);
       toast.error('Failed to update quantity');
@@ -200,47 +181,41 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error;
 
       setCartItems([]);
-      toast.info("Cart cleared");
+      toast.success('Cart cleared successfully');
     } catch (error) {
       console.error('Error clearing cart:', error);
       toast.error('Failed to clear cart');
     }
   };
 
+  const getTotalPrice = () => {
+    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
   const getTotalItems = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
-  const getTotalPrice = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
-  };
-
   return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        getTotalItems,
-        getTotalPrice,
-        loading,
-      }}
-    >
+    <CartContext.Provider value={{
+      cartItems,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      getTotalPrice,
+      getTotalItems,
+      loading
+    }}>
       {children}
     </CartContext.Provider>
   );
 };
 
-// Custom hook to use the cart context
 export const useCart = () => {
   const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error("useCart must be used within a CartProvider");
+    throw new Error('useCart must be used within a CartProvider');
   }
   return context;
 };
