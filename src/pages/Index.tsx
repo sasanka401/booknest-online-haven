@@ -264,13 +264,18 @@ const Index = () => {
                       <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </Button>
-                      <button 
+                      <Button 
                         onClick={() => handleToggleWishlist(book)} 
-                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
+                        size="icon"
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                        <Heart size={16} />
-                      </button>
+                        {isInWishlist(book.id) ? (
+                          <Heart size={16} fill="currentColor" stroke="currentColor" />
+                        ) : (
+                          <Heart size={16} />
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -304,13 +309,18 @@ const Index = () => {
                       <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </Button>
-                      <button 
+                      <Button 
                         onClick={() => handleToggleWishlist(book)} 
-                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
+                        size="icon"
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                        <Heart size={16} />
-                      </button>
+                        {isInWishlist(book.id) ? (
+                          <Heart size={16} fill="currentColor" stroke="currentColor" />
+                        ) : (
+                          <Heart size={16} />
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -339,13 +349,18 @@ const Index = () => {
                       <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </Button>
-                      <button 
+                      <Button 
                         onClick={() => handleToggleWishlist(book)} 
-                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
+                        size="icon"
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                        <Heart size={16} />
-                      </button>
+                        {isInWishlist(book.id) ? (
+                          <Heart size={16} fill="currentColor" stroke="currentColor" />
+                        ) : (
+                          <Heart size={16} />
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -374,13 +389,18 @@ const Index = () => {
                       <Button onClick={() => handleAddToCart(book)} className="flex-grow" title="Add to Cart">
                         <ShoppingCart size={16} className="mr-2" />Add to Cart
                       </Button>
-                      <button 
+                      <Button 
                         onClick={() => handleToggleWishlist(book)} 
-                        className={`btn-secondary ${isInWishlist(book.id) ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                        variant={isInWishlist(book.id) ? "destructive" : "secondary"}
+                        size="icon"
                         title={isInWishlist(book.id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                        <Heart size={16} />
-                      </button>
+                        {isInWishlist(book.id) ? (
+                          <Heart size={16} fill="currentColor" stroke="currentColor" />
+                        ) : (
+                          <Heart size={16} />
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </div>
